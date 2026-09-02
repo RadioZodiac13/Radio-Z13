@@ -1,0 +1,1434 @@
+<!doctype html>
+<html lang="en" data-visualize-standalone>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Z13 · Simulator 1 · Phase 1 Circular Receiver</title>
+<meta name="author" content="the author of the Z13 project">
+<meta name="creator" content="the author of the Z13 project">
+<meta name="rights" content="© 2026 the author of the Z13 project. Free use, study, modification, and redistribution with attribution.">
+<meta name="description" content="Circular receiver built during Phase 1 of the Z13 research.">
+<meta name="copyright" content="the author of the Z13 project, 2026">
+<style>:root {
+  color-scheme: light dark;
+  background-color: transparent !important;
+  --background: var(
+    --main-surface-primary,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --foreground: light-dark(rgb(26 28 31), rgb(255 255 255));
+  --card: color-mix(in oklab, var(--foreground) 5%, transparent);
+  --card-foreground: var(--foreground);
+  --popover: light-dark(rgb(255 255 255), rgb(45 45 45));
+  --popover-foreground: var(--foreground);
+  --primary: light-dark(rgb(51 156 255), rgb(131 195 255));
+  --primary-foreground: light-dark(rgb(255 255 255), rgb(13 13 13));
+  --secondary: light-dark(rgb(255 255 255 / 96%), rgb(54 54 54 / 96%));
+  --secondary-foreground: var(--foreground);
+  --muted: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --muted-foreground: light-dark(
+    rgb(26 28 31 / 49.4%),
+    rgb(255 255 255 / 49.8%)
+  );
+  --accent: light-dark(rgb(229 242 255), rgb(13 39 63));
+  --accent-foreground: var(--primary);
+  --destructive: light-dark(rgb(226 85 7), rgb(255 133 73));
+  --border: light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%));
+  --input: light-dark(
+    rgb(26 28 31 / 11.8%),
+    color-mix(in oklab, rgb(0 0 0) 10%, transparent)
+  );
+  --ring: light-dark(rgb(51 156 255), rgb(131 195 255 / 76%));
+  --font-size-base: 14px;
+  --red: light-dark(rgb(186 38 35), rgb(250 66 62));
+  --green: light-dark(rgb(0 162 64), rgb(64 201 119));
+
+  /* Internal implementation variables; not part of the agent contract. */
+  --font-sans: -apple-system, system-ui, "Segoe UI", sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
+    monospace;
+  --font-size-normal: max(11px, var(--font-size-base));
+  --font-size-tooltip: calc(var(--font-size-base) - 1px);
+  --font-size-small: max(11px, calc(var(--font-size-base) - 2px));
+  --font-size-h1: calc(var(--font-size-normal) * 1.7142857143);
+  --font-size-h2: calc(var(--font-size-normal) * 1.4285714286);
+  --font-size-h3: calc(var(--font-size-normal) * 1.2857142857);
+  --font-weight-normal: 430;
+  --font-weight-medium: 500;
+  --line-height-normal: calc(var(--font-size-normal) * 1.5);
+  --line-height-tooltip: calc(var(--font-size-tooltip) * 1.4285714286);
+  --line-height-small: calc(var(--font-size-small) + 4px);
+  --radius: 10px;
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-2xl: calc(var(--radius) * 1.6);
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 8%);
+  --checkmark-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 17 17'%3E%3Cpath d='M12.8961 3.64101C13.1297 3.41418 13.4984 3.37523 13.7779 3.56581C14.0571 3.75635 14.1554 4.11331 14.0299 4.41347L13.9615 4.53847L7.71151 13.7045C7.59411 13.8767 7.4063 13.9877 7.19881 14.0072C6.99136 14.0267 6.78564 13.9533 6.63826 13.806L2.88826 10.056L2.79842 9.9457C2.6192 9.67407 2.64927 9.30496 2.88826 9.06581C3.12738 8.82669 3.49647 8.79676 3.76815 8.97597L3.8785 9.06581L7.03084 12.2182L12.8053 3.74941L12.8961 3.64101Z'/%3E%3C/svg%3E");
+
+  /* Legacy aliases; not part of the current agent contract. */
+  --viz-bg: transparent;
+  --viz-panel: var(--card);
+  --viz-border: var(--border);
+  --viz-text: var(--foreground);
+  --viz-muted: var(--muted-foreground);
+  --viz-accent: var(--primary);
+  --viz-accent-text: var(--primary-foreground);
+  --viz-accent-bg: var(--accent);
+  --viz-font-size: var(--font-size-base);
+  --viz-warning: var(--destructive);
+  --color-background-primary: var(--background);
+  --color-text-primary: var(--foreground);
+  --color-border-secondary: var(--border);
+}
+
+:root[data-visualize-standalone] {
+  background-color: var(--background) !important;
+}
+
+/* Generic mobile code-block hosts provide light/dark mode but no series palette.
+   AppBlock hosts set all six variables themselves. */
+:root:not([data-app-block-surface]) {
+  --viz-series-1: var(--primary);
+  --viz-series-2: light-dark(#f3883b, #f59a56);
+  --viz-series-3: light-dark(#5dc977, #74d58b);
+  --viz-series-4: light-dark(#eb77b1, #f08fc0);
+  --viz-series-5: light-dark(#9b79ec, #aa91ef);
+  --viz-series-6: light-dark(#3ab9b1, #5acbc2);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html > body {
+  margin: 0;
+  padding: 5px;
+  color: var(--foreground);
+  background: transparent !important;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-normal);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+}
+
+:root:not([data-app-block-surface]) > body {
+  padding: 12px;
+}
+
+a {
+  color: color-mix(in srgb, var(--viz-accent) 80%, var(--viz-text) 20%);
+  cursor: pointer;
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  text-underline-offset: 2px;
+}
+
+a:is(:hover, :focus-visible) {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 0.5px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-block: 0;
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h3,
+h4,
+h5,
+h6 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.3;
+}
+
+b,
+strong,
+th {
+  font-weight: var(--font-weight-medium);
+}
+
+code:not(pre code) {
+  display: inline;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  word-break: break-word;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--foreground);
+  font: inherit;
+  text-align: start;
+}
+
+.table :is(th, td) {
+  padding-block: 10px;
+  padding-inline: 0 24px;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--border);
+  text-align: start;
+  vertical-align: top;
+}
+
+.table-responsive > .table :is(th, td) {
+  overflow-wrap: break-word;
+}
+
+.table :is(th, td):last-child {
+  padding-inline-end: 0;
+}
+
+.table :is(caption, thead th) {
+  font-weight: 600;
+}
+
+.table thead th {
+  padding-block: 8px;
+  border-bottom-color: color-mix(in srgb, var(--foreground) 16%, transparent);
+}
+
+.table tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+
+.table.table-sm :is(th, td) {
+  padding-block: 6px;
+}
+
+.table.table-sm :is(th, td):not(:last-child) {
+  padding-inline-end: 16px;
+}
+
+.table :is(.text-end, [align="right"]) {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.table :is(.text-center, [align="center"]) {
+  text-align: center;
+}
+
+.table .text-nowrap {
+  white-space: nowrap;
+}
+
+#widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  background: transparent !important;
+}
+
+.card {
+  min-width: 0;
+  padding: 12px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  border-radius: var(--radius-2xl);
+  color: var(--card-foreground);
+  background: var(--card);
+}
+
+#widget > :not(.card) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(
+    20rem,
+    var(--tooltip-available-width, calc(100vw - 10px)),
+    calc(100vw - 10px)
+  );
+  max-height: min(
+    var(--tooltip-available-height, calc(100vh - 10px)),
+    calc(100vh - 10px)
+  );
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--popover-foreground);
+  background: var(--popover);
+  box-shadow: none;
+  font-size: var(--font-size-tooltip);
+  line-height: var(--line-height-tooltip);
+  overflow-wrap: break-word;
+  white-space: normal;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* The bundled tooltip runtime owns [data-tooltip]. AppBlock's CSS-only
+   pseudo-tooltip can widen dense grids even while hidden. */
+main [data-tooltip]::after {
+  content: none;
+}
+
+.viz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(180px, 24%), 1fr));
+  gap: 10px;
+}
+
+.viz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.viz-stat-value {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+.viz-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.viz-badge {
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  color: var(--accent-foreground);
+  background: var(--accent);
+  font-weight: var(--font-weight-medium);
+}
+
+small,
+.text-small,
+.viz-badge {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.viz-controls > .form-label {
+  display: grid;
+  min-width: min(100%, 260px);
+  flex: 1 1 280px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin-bottom: 0;
+}
+
+.viz-controls > .form-label > :is(.form-control, .form-range, .form-select) {
+  grid-column: 1 / -1;
+}
+
+.btn,
+.form-check-input,
+.form-control,
+.form-range,
+.form-select {
+  font: inherit;
+}
+
+.btn {
+  appearance: button;
+  display: inline-flex;
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 8px;
+  -webkit-app-region: no-drag;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: var(--cursor-interaction, pointer);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn:is(.btn-block, .viz-tile) {
+  inline-size: 100%;
+}
+
+.btn.viz-tile {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+a.btn {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn-primary {
+  border-color: transparent;
+  color: var(--interactive-label-primary-default, var(--primary-foreground));
+  background: var(--interactive-bg-primary-default, var(--foreground));
+  background-clip: padding-box;
+}
+
+.btn-primary .text-muted {
+  color: color-mix(
+    in srgb,
+    var(--interactive-label-primary-default, var(--primary-foreground)) 50%,
+    transparent
+  );
+}
+
+.btn-primary:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 80%, transparent);
+  background-clip: padding-box;
+}
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.btn-ghost:not(:disabled):hover {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+[data-lucide] {
+  stroke-width: 1.6;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--foreground);
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  padding: 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  color: var(--foreground);
+  background: var(--secondary);
+}
+
+.form-control::placeholder {
+  color: var(--muted-foreground);
+}
+
+.form-control[type="file"] {
+  padding: 0;
+  overflow: hidden;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control[type="file"]::file-selector-button {
+  min-height: 26px;
+  margin-right: 8px;
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid var(--input);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: inherit;
+  font: inherit;
+}
+
+.form-control[type="file"]:not(:disabled):hover::file-selector-button {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-control-color[type="color"] {
+  width: 40px;
+  height: 28px;
+  padding: 3px;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control-color[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.form-control-color[type="color"]::-webkit-color-swatch {
+  border: 0;
+  border-radius: calc(var(--radius-lg) - 4px);
+}
+
+textarea.form-control {
+  height: auto;
+  min-height: 72px;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.form-control:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.form-select {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  margin: 0;
+  padding: 0 32px 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  color: var(--foreground);
+  background-color: var(--secondary);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%),
+    linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) 50%,
+    calc(100% - 10px) 50%;
+  background-repeat: no-repeat;
+  background-size: 4px 4px;
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-select:not(:disabled):hover {
+  background-color: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-select:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-check {
+  display: flex;
+  min-height: 20px;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-check-input {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  margin: 0;
+  border: 1px solid var(--input);
+  color: var(--primary-foreground);
+  background-color: transparent;
+  cursor: var(--cursor-interaction, default);
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.form-check:not(.form-switch) .form-check-input[type="checkbox"] {
+  border-color: var(--input);
+  border-radius: var(--radius-sm);
+  background-color: var(--secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input:not(:disabled):not(:checked):hover {
+  background-color: var(--card);
+}
+
+.form-check:not(.form-switch) .form-check-input[type="checkbox"]:checked {
+  border-color: var(--primary);
+  background-color: var(--primary);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type="checkbox"]:checked::before {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-foreground);
+  content: "";
+  mask: var(--checkmark-image) center / 12px 12px no-repeat;
+}
+
+.form-check-input[type="radio"] {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+}
+
+.form-check-input[type="radio"]:checked {
+  border: 2px solid var(--primary);
+  background:
+    radial-gradient(circle, var(--primary-foreground) 0 2.5px, transparent 3px),
+    var(--primary);
+}
+
+.form-check:not(.form-switch) .form-check-input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+}
+
+.form-switch .form-check-input:disabled,
+.form-switch .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-check-label {
+  color: var(--foreground);
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-switch .form-check-input {
+  position: relative;
+  width: 32px;
+  height: 20px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  box-shadow: none;
+  transition: background-color 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 1px solid light-dark(var(--primary-foreground), var(--foreground));
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+  box-shadow: var(--shadow-sm);
+  content: "";
+  transform: translate(2px, -50%);
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input:checked {
+  background: var(--primary);
+}
+
+.form-switch .form-check-input:checked::before {
+  transform: translate(14px, -50%);
+}
+
+.form-switch .form-check-input:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.form-range {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 28px;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  border: 0;
+  accent-color: var(--primary);
+  background: linear-gradient(
+      color-mix(in srgb, var(--foreground) 7%, transparent),
+      color-mix(in srgb, var(--foreground) 7%, transparent)
+    )
+    center / 100% 2px no-repeat;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-webkit-slider-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range::-moz-range-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-moz-range-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.btn:not(.btn-primary, .viz-tile):is(
+    [aria-pressed="true"],
+    [aria-selected="true"],
+    .is-selected
+  ) {
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+.btn.viz-tile:is([aria-pressed="true"], [aria-selected="true"], .is-selected) {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+#widget > svg {
+  width: 100%;
+}
+
+.text-warning,
+.text-destructive {
+  color: var(--destructive);
+}
+</style>
+</head>
+<body>
+<!--
+  RESEARCH TOOL
+  Research, conceptual design, and direction: the author of the Z13 project.
+  Free use, study, modification, and redistribution with attribution.
+-->
+<div id="z13-bisel"
+     data-author="the author of the Z13 project"
+     data-intellectual-author="the author of the Z13 project"
+     data-project-phase="Z13 Phase 1"
+>
+  <style>
+    #z13-bisel {
+      width: 100%;
+      color: var(--foreground);
+    }
+
+    #z13-bisel .sim-layout {
+      display: grid;
+      gap: 1rem;
+    }
+
+    #z13-bisel .authorship-mark {
+      width: min(100%, 760px);
+      margin-inline: auto;
+      display: grid;
+      gap: 0.35rem;
+    }
+
+    #z13-bisel .authorship-title,
+    #z13-bisel .authorship-name {
+      font-weight: 500;
+    }
+
+    #z13-bisel .authorship-label,
+    #z13-bisel .authorship-rights {
+      color: var(--muted-foreground);
+    }
+
+    #z13-bisel .authorship-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.15rem 0.5rem;
+      align-items: baseline;
+    }
+
+    #z13-bisel .watch-wrap {
+      display: grid;
+      place-items: center;
+      min-width: 0;
+    }
+
+    #z13-bisel .watch-svg {
+      width: min(100%, 760px);
+      height: auto;
+      overflow: visible;
+      touch-action: none;
+      user-select: none;
+    }
+
+    #z13-bisel .alphabet-base {
+      fill: none;
+      stroke: var(--card);
+      stroke-width: 58;
+    }
+
+    #z13-bisel .alphabet-border {
+      fill: none;
+      stroke: var(--border);
+      stroke-width: 2;
+    }
+
+    #z13-bisel .alphabet-tick {
+      stroke: var(--border);
+      stroke-width: 1.5;
+      stroke-linecap: round;
+    }
+
+    #z13-bisel .alphabet-letter {
+      fill: var(--foreground);
+      text-anchor: middle;
+      dominant-baseline: middle;
+      font-weight: 500;
+      letter-spacing: 0;
+    }
+
+    #z13-bisel .bezel-base {
+      fill: var(--muted);
+      stroke: var(--border);
+      stroke-width: 2;
+    }
+
+    #z13-bisel .dial-face {
+      fill: var(--card);
+      stroke: var(--border);
+      stroke-width: 3;
+    }
+
+    #z13-bisel .fixed-mark,
+    #z13-bisel .bezel-line {
+      stroke: var(--foreground);
+      stroke-linecap: round;
+    }
+
+    #z13-bisel .bezel-triangle {
+      fill: var(--viz-series-1);
+      stroke: var(--foreground);
+      stroke-width: 1.5;
+    }
+
+    #z13-bisel .bezel-zero {
+      fill: var(--viz-series-2);
+      stroke: var(--foreground);
+      stroke-width: 2;
+    }
+
+    #z13-bisel .dial-label,
+    #z13-bisel .bezel-label {
+      fill: var(--foreground);
+      text-anchor: middle;
+      dominant-baseline: middle;
+      font-weight: 500;
+    }
+
+    #z13-bisel .dial-authorship {
+      fill: var(--muted-foreground);
+      text-anchor: middle;
+      font-size: var(--font-size-small);
+      font-weight: 500;
+      letter-spacing: 0.04em;
+    }
+
+    #z13-bisel .hour-hand {
+      fill: var(--foreground);
+      stroke: var(--foreground);
+      stroke-linejoin: round;
+    }
+
+    #z13-bisel .minute-hand {
+      fill: var(--viz-series-1);
+      stroke: var(--viz-series-1);
+      stroke-linejoin: round;
+    }
+
+    #z13-bisel .hand-hit {
+      fill: none;
+      stroke: transparent;
+      stroke-width: 34;
+      pointer-events: stroke;
+      cursor: grab;
+    }
+
+    #z13-bisel .hand-hit:active {
+      cursor: grabbing;
+    }
+
+    #z13-bisel .center-pin {
+      fill: var(--foreground);
+      stroke: var(--card);
+      stroke-width: 3;
+    }
+
+    #z13-bisel .drag-ring {
+      fill: none;
+      stroke: transparent;
+      stroke-width: 66;
+      cursor: grab;
+    }
+
+    #z13-bisel .drag-ring:active {
+      cursor: grabbing;
+    }
+
+    #z13-bisel .alphabet-drag-ring {
+      fill: none;
+      stroke: transparent;
+      stroke-width: 64;
+      cursor: grab;
+    }
+
+    #z13-bisel .alphabet-drag-ring:active {
+      cursor: grabbing;
+    }
+
+    #z13-bisel .sim-status {
+      justify-content: center;
+    }
+
+    #z13-bisel .sim-controls {
+      align-items: end;
+    }
+
+    #z13-bisel .control-field {
+      min-width: min(100%, 210px);
+      flex: 1 1 180px;
+    }
+
+    #z13-bisel .control-value {
+      color: var(--foreground);
+      font-weight: 500;
+    }
+
+    #z13-bisel .usage-note {
+      width: min(100%, 760px);
+      margin-inline: auto;
+      padding-block-start: 0.75rem;
+      border-block-start: 1px solid var(--border);
+      color: var(--muted-foreground);
+    }
+
+    #z13-bisel .usage-note p + p {
+      margin-block-start: 0.45rem;
+    }
+
+    #z13-bisel .usage-note strong {
+      color: var(--foreground);
+    }
+
+    @media (max-width: 520px) {
+      #z13-bisel .sim-controls {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      #z13-bisel .control-field {
+        min-width: 0;
+      }
+    }
+  </style>
+
+  <div class="sim-layout">
+    <header class="card authorship-mark" aria-labelledby="authorship-title">
+      <p id="authorship-title" class="authorship-title">Z13 · SIMULATOR 1 · PHASE 1 CIRCULAR RECEIVER</p>
+      <p class="authorship-line"><span class="authorship-label">Research, conceptual design, and direction:</span> <span class="authorship-name">the author</span></p>
+      <p class="authorship-rights text-small">Historical instrument · It does not constitute a validated solution.</p>
+    </header>
+
+    <div class="viz-controls sim-controls" aria-label="Clock controls">
+      <label class="form-label control-field" for="alphabet-step">
+        A–Z ring: <span id="alphabet-value" class="control-value">0 steps · 0°</span>
+        <input id="alphabet-step" class="form-range" type="range" min="0" max="59" step="1" value="0">
+      </label>
+
+      <label class="form-label control-field" for="bezel-step">
+        Bezel: <span id="bezel-value" class="control-value">0 steps · 0°</span>
+        <input id="bezel-step" class="form-range" type="range" min="0" max="59" step="1" value="0">
+      </label>
+
+      <label class="form-label control-field" for="time-value">
+        Coupled hands: <span id="time-readout" class="control-value">09:13</span>
+        <input id="time-value" class="form-range" type="range" min="0" max="719" step="1" value="553">
+      </label>
+
+    </div>
+
+    <div class="viz-row sim-status" aria-live="polite">
+      <span id="alphabet-status" class="viz-badge">A at 12</span>
+      <span id="zero-status" class="viz-badge">Triangle at 12</span>
+      <span class="viz-badge">12:1 mechanical ratio</span>
+      <span id="direction-status" class="viz-badge">No rotation</span>
+    </div>
+
+    <div class="watch-wrap">
+      <svg id="z13-watch" class="watch-svg" viewBox="-80 -80 760 760" role="img" aria-labelledby="watch-title watch-desc">
+        <title id="watch-title">Zodiac clock simulator with movable bezel and alphabet ring</title>
+        <desc id="watch-desc">Drag the outer alphabet ring or the bezel independently. Drag either hand to move both hands with the mechanical ratio of a clock.</desc>
+        <metadata>Research, conceptual design, and direction: the author of the Z13 project.</metadata>
+
+        <circle cx="300" cy="300" r="342" class="alphabet-base"></circle>
+        <circle cx="300" cy="300" r="371" class="alphabet-border"></circle>
+        <circle cx="300" cy="300" r="313" class="alphabet-border"></circle>
+        <g id="alphabet-group" aria-label="Rotating alphabet ring"></g>
+        <circle cx="300" cy="300" r="282" class="bezel-base"></circle>
+        <g id="bezel-group" aria-label="Rotating bezel"></g>
+        <circle cx="300" cy="300" r="235" class="dial-face"></circle>
+        <g id="dial-marks" aria-hidden="true"></g>
+
+        <g aria-hidden="true">
+          <circle cx="300" cy="178" r="14" fill="none" stroke="currentColor" stroke-width="2"></circle>
+          <line x1="281" y1="178" x2="319" y2="178" stroke="currentColor" stroke-width="2"></line>
+          <line x1="300" y1="159" x2="300" y2="197" stroke="currentColor" stroke-width="2"></line>
+          <text x="300" y="214" class="dial-label">ZODIAC</text>
+          <text x="300" y="390" class="dial-label">Z13</text>
+          <text x="300" y="430" class="dial-authorship">THE AUTHOR · Z13 PROJECT · 2026</text>
+          <text x="300" y="450" class="dial-authorship">HISTORICAL INSTRUMENT · PHASE 1</text>
+        </g>
+
+        <g id="hands" aria-label="Clock hands">
+          <g id="hour-hand">
+            <path class="hour-hand" d="M 292 310 L 300 188 L 308 310 L 300 330 Z"></path>
+            <path id="hour-hand-hit" class="hand-hit" d="M 300 330 L 300 178" aria-label="Drag the hour hand to set the clock"></path>
+          </g>
+          <g id="minute-hand">
+            <path class="minute-hand" d="M 295 316 L 300 123 L 305 316 L 300 334 Z"></path>
+            <path id="minute-hand-hit" class="hand-hit" d="M 300 334 L 300 113" aria-label="Drag the minute hand to set the clock"></path>
+          </g>
+          <circle cx="300" cy="300" r="11" class="center-pin"></circle>
+        </g>
+
+        <circle id="drag-ring" cx="300" cy="300" r="270" class="drag-ring" aria-label="Drag to rotate the clock bezel"></circle>
+        <circle id="alphabet-drag-ring" cx="300" cy="300" r="342" class="alphabet-drag-ring" aria-label="Drag to rotate the alphabet ring"></circle>
+      </svg>
+    </div>
+
+    <aside class="usage-note text-small" role="note" aria-label="Research status and terms of use">
+      <p><strong>Phase 1 · historical status.</strong> This tool reproduces the first experimental circular receiver; it does not constitute a validated solution to Z13.</p>
+      <p><strong>Open use:</strong> private and public use, as well as study, modification, and redistribution of this copy, are permitted.</p>
+      <p><strong>Attribution:</strong> derived versions and published results must credit “the author of the Z13 project” and this Phase 1 tool. Project contact: <a href="mailto:radiozodiac13@gmail.com">radiozodiac13@gmail.com</a>.</p>
+    </aside>
+  </div>
+
+  <script>
+    (() => {
+      const root = document.getElementById("z13-bisel");
+      const svg = root.querySelector("#z13-watch");
+      const alphabetGroup = root.querySelector("#alphabet-group");
+      const bezelGroup = root.querySelector("#bezel-group");
+      const dialMarks = root.querySelector("#dial-marks");
+      const dragRing = root.querySelector("#drag-ring");
+      const alphabetDragRing = root.querySelector("#alphabet-drag-ring");
+      const alphabetInput = root.querySelector("#alphabet-step");
+      const bezelInput = root.querySelector("#bezel-step");
+      const timeInput = root.querySelector("#time-value");
+      const alphabetReadout = root.querySelector("#alphabet-value");
+      const bezelReadout = root.querySelector("#bezel-value");
+      const timeReadout = root.querySelector("#time-readout");
+      const alphabetStatus = root.querySelector("#alphabet-status");
+      const zeroStatus = root.querySelector("#zero-status");
+      const directionStatus = root.querySelector("#direction-status");
+      const hourHand = root.querySelector("#hour-hand");
+      const minuteHand = root.querySelector("#minute-hand");
+      const hourHandHit = root.querySelector("#hour-hand-hit");
+      const minuteHandHit = root.querySelector("#minute-hand-hit");
+      const ns = "http://www.w3.org/2000/svg";
+      let alphabetStep = 0;
+      let bezelStep = 0;
+      let totalMinutes = 9 * 60 + 13;
+      const previousSteps = { alphabet: 0, bezel: 0 };
+      let activeDrag = null;
+      let dragOffset = 0;
+      let activeTimeHand = null;
+      let lastHandAngle = 0;
+      let draggedTimeMinutes = totalMinutes;
+
+      function makeSvg(name, attrs = {}) {
+        const el = document.createElementNS(ns, name);
+        Object.entries(attrs).forEach(([key, value]) => el.setAttribute(key, String(value)));
+        return el;
+      }
+
+      function polarTransform(step, radius, counterRotate = 0) {
+        const angle = step * 6;
+        return `rotate(${angle} 300 300) translate(300 ${300 - radius}) rotate(${counterRotate - angle})`;
+      }
+
+      function polarTransformDegrees(angle, radius, counterRotate = 0) {
+        return `rotate(${angle} 300 300) translate(300 ${300 - radius}) rotate(${counterRotate - angle})`;
+      }
+
+      function buildAlphabet() {
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach((letter, index) => {
+          const angle = index * 360 / 26;
+          const holder = makeSvg("g", { transform: `rotate(${angle} 300 300)` });
+          holder.appendChild(makeSvg("line", {
+            x1: 300,
+            y1: -57,
+            x2: 300,
+            y2: -48,
+            class: "alphabet-tick"
+          }));
+          alphabetGroup.appendChild(holder);
+
+          const text = makeSvg("text", {
+            x: 0,
+            y: 0,
+            class: "alphabet-letter",
+            transform: polarTransformDegrees(angle, 342, 0)
+          });
+          text.textContent = letter;
+          alphabetGroup.appendChild(text);
+        });
+      }
+
+      function buildDial() {
+        for (let i = 0; i < 60; i += 1) {
+          const major = i % 5 === 0;
+          const line = makeSvg("line", {
+            x1: 300,
+            y1: major ? 84 : 91,
+            x2: 300,
+            y2: major ? 108 : 101,
+            class: "fixed-mark",
+            "stroke-width": major ? 5 : 2,
+            transform: `rotate(${i * 6} 300 300)`
+          });
+          dialMarks.appendChild(line);
+        }
+
+        [["12", 0], ["3", 15], ["6", 30], ["9", 45]].forEach(([label, step]) => {
+          const text = makeSvg("text", {
+            x: 0,
+            y: 0,
+            class: "dial-label",
+            transform: polarTransform(step, 180, 0)
+          });
+          text.textContent = label;
+          dialMarks.appendChild(text);
+        });
+      }
+
+      function buildBezel() {
+        for (let i = 0; i < 60; i += 1) {
+          const holder = makeSvg("g", { transform: `rotate(${i * 6} 300 300)` });
+
+          if (i === 0) {
+            holder.appendChild(makeSvg("polygon", {
+              points: "300,31 282,65 318,65",
+              class: "bezel-zero"
+            }));
+          } else if (i > 0 && i < 15 && i % 3 === 0) {
+            holder.appendChild(makeSvg("polygon", {
+              points: "300,44 291,61 309,61",
+              class: "bezel-triangle"
+            }));
+          } else if (i === 15) {
+            holder.appendChild(makeSvg("line", {
+              x1: 300,
+              y1: 38,
+              x2: 300,
+              y2: 67,
+              class: "bezel-line",
+              "stroke-width": 7
+            }));
+          } else {
+            const detailed = i > 0 && i < 15;
+            const major = i % 5 === 0;
+            holder.appendChild(makeSvg("line", {
+              x1: 300,
+              y1: detailed || major ? 43 : 50,
+              x2: 300,
+              y2: detailed || major ? 64 : 58,
+              class: "bezel-line",
+              "stroke-width": major ? 6 : detailed ? 3 : 2
+            }));
+          }
+
+          bezelGroup.appendChild(holder);
+        }
+
+        const thirty = makeSvg("text", {
+          x: 0,
+          y: 0,
+          class: "bezel-label",
+          transform: polarTransform(30, 253, 0)
+        });
+        thirty.textContent = "30";
+        bezelGroup.appendChild(thirty);
+      }
+
+      function normalizeStep(value) {
+        return ((value % 60) + 60) % 60;
+      }
+
+      function updateDirection(kind, nextStep) {
+        const clockwiseDistance = normalizeStep(nextStep - previousSteps[kind]);
+        const target = kind === "alphabet" ? "A–Z ring" : "bezel";
+        if (clockwiseDistance === 0) {
+          directionStatus.textContent = "No rotation";
+        } else if (clockwiseDistance <= 30) {
+          directionStatus.textContent = `Last rotation: ${target} clockwise`;
+        } else {
+          directionStatus.textContent = `Last rotation: ${target} counterclockwise`;
+        }
+        previousSteps[kind] = nextStep;
+      }
+
+      function renderAlphabet(nextStep, trackDirection = true) {
+        const normalized = normalizeStep(Number(nextStep));
+        if (trackDirection) updateDirection("alphabet", normalized);
+        alphabetStep = normalized;
+        alphabetInput.value = String(normalized);
+        alphabetGroup.setAttribute("transform", `rotate(${normalized * 6} 300 300)`);
+        alphabetReadout.textContent = `${normalized} steps · ${normalized * 6}°`;
+        alphabetStatus.textContent = normalized === 0
+          ? "A at 12"
+          : `A at minute ${normalized}`;
+      }
+
+      function renderBezel(nextStep, trackDirection = true) {
+        const normalized = normalizeStep(Number(nextStep));
+        if (trackDirection) updateDirection("bezel", normalized);
+        bezelStep = normalized;
+        bezelInput.value = String(normalized);
+        bezelGroup.setAttribute("transform", `rotate(${normalized * 6} 300 300)`);
+        bezelReadout.textContent = `${normalized} steps · ${normalized * 6}°`;
+        const clockMinute = normalizeStep(normalized);
+        zeroStatus.textContent = clockMinute === 0
+          ? "Triangle at 12"
+          : `Triangle at minute ${clockMinute}`;
+      }
+
+      function normalizeTimeMinutes(value) {
+        return ((value % 720) + 720) % 720;
+      }
+
+      function renderHands(nextTotalMinutes = totalMinutes) {
+        totalMinutes = normalizeTimeMinutes(Number(nextTotalMinutes));
+        const displayedMinutes = Math.round(totalMinutes) % 720;
+        const hour = Math.floor(displayedMinutes / 60);
+        const minute = displayedMinutes % 60;
+        const hourAngle = totalMinutes * 0.5;
+        const minuteAngle = totalMinutes * 6;
+        hourHand.setAttribute("transform", `rotate(${hourAngle} 300 300)`);
+        minuteHand.setAttribute("transform", `rotate(${minuteAngle} 300 300)`);
+        const clockTime = `${String(hour === 0 ? 12 : hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+        timeInput.value = String(displayedMinutes);
+        timeReadout.textContent = clockTime;
+      }
+
+      function pointerAngle(event) {
+        const point = svg.createSVGPoint();
+        point.x = event.clientX;
+        point.y = event.clientY;
+        const local = point.matrixTransform(svg.getScreenCTM().inverse());
+        const degrees = Math.atan2(local.x - 300, 300 - local.y) * 180 / Math.PI;
+        return (degrees + 360) % 360;
+      }
+
+      function startDragging(kind, ring, event) {
+        activeDrag = kind;
+        ring.setPointerCapture(event.pointerId);
+        const currentStep = kind === "alphabet" ? alphabetStep : bezelStep;
+        dragOffset = currentStep * 6 - pointerAngle(event);
+      }
+
+      function continueDragging(kind, event) {
+        if (activeDrag !== kind) return;
+        const rawDegrees = pointerAngle(event) + dragOffset;
+        const nextStep = Math.round(rawDegrees / 6);
+        if (kind === "alphabet") renderAlphabet(nextStep);
+        else renderBezel(nextStep);
+      }
+
+      function stopDragging(ring, event) {
+        if (!activeDrag) return;
+        activeDrag = null;
+        if (ring.hasPointerCapture(event.pointerId)) ring.releasePointerCapture(event.pointerId);
+      }
+
+      function signedAngleDelta(nextAngle, previousAngle) {
+        return ((nextAngle - previousAngle + 540) % 360) - 180;
+      }
+
+      function startHandDragging(kind, hitArea, event) {
+        event.preventDefault();
+        event.stopPropagation();
+        activeTimeHand = kind;
+        hitArea.setPointerCapture(event.pointerId);
+        lastHandAngle = pointerAngle(event);
+        draggedTimeMinutes = totalMinutes;
+      }
+
+      function continueHandDragging(kind, event) {
+        if (activeTimeHand !== kind) return;
+        const nextAngle = pointerAngle(event);
+        const delta = signedAngleDelta(nextAngle, lastHandAngle);
+        draggedTimeMinutes += kind === "minute" ? delta / 6 : delta * 2;
+        lastHandAngle = nextAngle;
+        renderHands(draggedTimeMinutes);
+      }
+
+      function stopHandDragging(hitArea, event) {
+        if (!activeTimeHand) return;
+        activeTimeHand = null;
+        renderHands(Math.round(totalMinutes));
+        if (hitArea.hasPointerCapture(event.pointerId)) hitArea.releasePointerCapture(event.pointerId);
+      }
+
+      dragRing.addEventListener("pointerdown", (event) => startDragging("bezel", dragRing, event));
+      dragRing.addEventListener("pointermove", (event) => continueDragging("bezel", event));
+      dragRing.addEventListener("pointerup", (event) => stopDragging(dragRing, event));
+      dragRing.addEventListener("pointercancel", (event) => stopDragging(dragRing, event));
+      alphabetDragRing.addEventListener("pointerdown", (event) => startDragging("alphabet", alphabetDragRing, event));
+      alphabetDragRing.addEventListener("pointermove", (event) => continueDragging("alphabet", event));
+      alphabetDragRing.addEventListener("pointerup", (event) => stopDragging(alphabetDragRing, event));
+      alphabetDragRing.addEventListener("pointercancel", (event) => stopDragging(alphabetDragRing, event));
+      hourHandHit.addEventListener("pointerdown", (event) => startHandDragging("hour", hourHandHit, event));
+      hourHandHit.addEventListener("pointermove", (event) => continueHandDragging("hour", event));
+      hourHandHit.addEventListener("pointerup", (event) => stopHandDragging(hourHandHit, event));
+      hourHandHit.addEventListener("pointercancel", (event) => stopHandDragging(hourHandHit, event));
+      minuteHandHit.addEventListener("pointerdown", (event) => startHandDragging("minute", minuteHandHit, event));
+      minuteHandHit.addEventListener("pointermove", (event) => continueHandDragging("minute", event));
+      minuteHandHit.addEventListener("pointerup", (event) => stopHandDragging(minuteHandHit, event));
+      minuteHandHit.addEventListener("pointercancel", (event) => stopHandDragging(minuteHandHit, event));
+      alphabetInput.addEventListener("input", () => renderAlphabet(alphabetInput.value));
+      bezelInput.addEventListener("input", () => renderBezel(bezelInput.value));
+      timeInput.addEventListener("input", () => renderHands(timeInput.value));
+
+      buildAlphabet();
+      buildDial();
+      buildBezel();
+      renderAlphabet(0, false);
+      renderBezel(0, false);
+      renderHands(totalMinutes);
+    })();
+  </script>
+</div>
+
+</body>
+</html>

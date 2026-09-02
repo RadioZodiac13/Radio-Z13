@@ -1,0 +1,65 @@
+RADIO Z13 · OPEN USE WITH ATTRIBUTION
+
+© 2026 the author of the Z13 project.
+
+Permission is granted free of charge to use, study, copy, run, display,
+modify, and redistribute the reports and simulators included in this
+package, both privately and publicly.
+
+ATTRIBUTION CONDITION
+
+- Copies, derivative versions, and published results must credit
+  “the author of the Z13 project” and, where applicable, identify the
+  simulator used.
+
+- Project contact: radiozodiac13@gmail.com
+
+This permission does not authorize presenting the research as a validated
+cryptographic solution or attributing to the author claims other than those
+contained in the documents. The material is provided for examination,
+reproduction, and collaboration, without warranty of accuracy or fitness
+for any particular purpose.
+
+PACKAGE CONTENTS
+
+1. Radio_Z13_Research_Summary.pdf
+   Research summary for reading and distribution.
+
+2. Radio_Z13_Research_Summary.docx
+   Editable copy of the same report.
+
+3. Radio_Z13_Simulator_1_Circular_Receiver.html
+   Historical Phase 1 state: A-Z ring, bezel, and 12:1 coupled hands.
+
+4. Radio_Z13_Simulator_2_GFRPOSTE_Sector.html
+   Historical Phase 2 state: thirteen-letter sector containing the subset
+   compatible with G.F.R.POSTE. The file itself states that the selection
+   of eight letters and their order have not yet been demonstrated.
+
+5. Radio_Z13_Simulator_3_Instrument_v0_9.html
+   Current frozen instrument: clock, bezel, 0°-360° protractor, and
+   simultaneous 24- and 26-letter rings.
+
+6. LEEME.docx
+   Author's Note in Spanish.
+
+7. README.docx
+   Author's Note in English.
+
+8. SHA256SUMS.txt
+   SHA-256 hashes of the package files.
+
+METHODOLOGICAL NOTICE
+
+This package does not present a validated cryptographic solution to Z13.
+It publishes a research path, observations, measurements, and tools so
+that they can be tested, criticized, modified, or refuted.
+
+In the documents, “the author” refers to the person who developed and
+directed this research. “The sender of Z13” refers to whoever created or
+sent the cryptogram; it is not assumed that this necessarily corresponds
+to the same person behind all crimes attributed to Zodiac.
+
+PROJECT CONTACT
+
+radiozodiac13@gmail.com

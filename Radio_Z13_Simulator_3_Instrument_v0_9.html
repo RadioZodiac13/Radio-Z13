@@ -1,0 +1,1696 @@
+<!doctype html>
+<html lang="en" data-visualize-standalone>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Z13 · Simulator 3 · Final Instrument v0.9</title>
+<meta name="author" content="the author of the Z13 project">
+<meta name="description" content="Frozen final Phase 2 instrument: clock, bezel, circular protractor, and 24- and 26-letter rings.">
+<meta name="rights" content="© 2026 the author of the Z13 project. Free use, study, modification, and redistribution with attribution.">
+<style>:root {
+  color-scheme: light dark;
+  background-color: transparent !important;
+  --background: var(
+    --main-surface-primary,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --foreground: light-dark(rgb(26 28 31), rgb(255 255 255));
+  --card: color-mix(in oklab, var(--foreground) 5%, transparent);
+  --card-foreground: var(--foreground);
+  --popover: light-dark(rgb(255 255 255), rgb(45 45 45));
+  --popover-foreground: var(--foreground);
+  --primary: light-dark(rgb(51 156 255), rgb(131 195 255));
+  --primary-foreground: light-dark(rgb(255 255 255), rgb(13 13 13));
+  --secondary: light-dark(rgb(255 255 255 / 96%), rgb(54 54 54 / 96%));
+  --secondary-foreground: var(--foreground);
+  --muted: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --muted-foreground: light-dark(
+    rgb(26 28 31 / 49.4%),
+    rgb(255 255 255 / 49.8%)
+  );
+  --accent: light-dark(rgb(229 242 255), rgb(13 39 63));
+  --accent-foreground: var(--primary);
+  --destructive: light-dark(rgb(226 85 7), rgb(255 133 73));
+  --border: light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%));
+  --input: light-dark(
+    rgb(26 28 31 / 11.8%),
+    color-mix(in oklab, rgb(0 0 0) 10%, transparent)
+  );
+  --ring: light-dark(rgb(51 156 255), rgb(131 195 255 / 76%));
+  --font-size-base: 14px;
+  --red: light-dark(rgb(186 38 35), rgb(250 66 62));
+  --green: light-dark(rgb(0 162 64), rgb(64 201 119));
+
+  /* Internal implementation variables; not part of the agent contract. */
+  --font-sans: -apple-system, system-ui, "Segoe UI", sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
+    monospace;
+  --font-size-normal: max(11px, var(--font-size-base));
+  --font-size-tooltip: calc(var(--font-size-base) - 1px);
+  --font-size-small: max(11px, calc(var(--font-size-base) - 2px));
+  --font-size-h1: calc(var(--font-size-normal) * 1.7142857143);
+  --font-size-h2: calc(var(--font-size-normal) * 1.4285714286);
+  --font-size-h3: calc(var(--font-size-normal) * 1.2857142857);
+  --font-weight-normal: 430;
+  --font-weight-medium: 500;
+  --line-height-normal: calc(var(--font-size-normal) * 1.5);
+  --line-height-tooltip: calc(var(--font-size-tooltip) * 1.4285714286);
+  --line-height-small: calc(var(--font-size-small) + 4px);
+  --radius: 10px;
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-2xl: calc(var(--radius) * 1.6);
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 8%);
+  --checkmark-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 17 17'%3E%3Cpath d='M12.8961 3.64101C13.1297 3.41418 13.4984 3.37523 13.7779 3.56581C14.0571 3.75635 14.1554 4.11331 14.0299 4.41347L13.9615 4.53847L7.71151 13.7045C7.59411 13.8767 7.4063 13.9877 7.19881 14.0072C6.99136 14.0267 6.78564 13.9533 6.63826 13.806L2.88826 10.056L2.79842 9.9457C2.6192 9.67407 2.64927 9.30496 2.88826 9.06581C3.12738 8.82669 3.49647 8.79676 3.76815 8.97597L3.8785 9.06581L7.03084 12.2182L12.8053 3.74941L12.8961 3.64101Z'/%3E%3C/svg%3E");
+
+  /* Legacy aliases; not part of the current agent contract. */
+  --viz-bg: transparent;
+  --viz-panel: var(--card);
+  --viz-border: var(--border);
+  --viz-text: var(--foreground);
+  --viz-muted: var(--muted-foreground);
+  --viz-accent: var(--primary);
+  --viz-accent-text: var(--primary-foreground);
+  --viz-accent-bg: var(--accent);
+  --viz-font-size: var(--font-size-base);
+  --viz-warning: var(--destructive);
+  --color-background-primary: var(--background);
+  --color-text-primary: var(--foreground);
+  --color-border-secondary: var(--border);
+}
+
+:root[data-visualize-standalone] {
+  background-color: var(--background) !important;
+}
+
+/* Generic mobile code-block hosts provide light/dark mode but no series palette.
+   AppBlock hosts set all six variables themselves. */
+:root:not([data-app-block-surface]) {
+  --viz-series-1: var(--primary);
+  --viz-series-2: light-dark(#f3883b, #f59a56);
+  --viz-series-3: light-dark(#5dc977, #74d58b);
+  --viz-series-4: light-dark(#eb77b1, #f08fc0);
+  --viz-series-5: light-dark(#9b79ec, #aa91ef);
+  --viz-series-6: light-dark(#3ab9b1, #5acbc2);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html > body {
+  margin: 0;
+  padding: 5px;
+  color: var(--foreground);
+  background: transparent !important;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-normal);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+}
+
+:root:not([data-app-block-surface]) > body {
+  padding: 12px;
+}
+
+a {
+  color: color-mix(in srgb, var(--viz-accent) 80%, var(--viz-text) 20%);
+  cursor: pointer;
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  text-underline-offset: 2px;
+}
+
+a:is(:hover, :focus-visible) {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 0.5px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-block: 0;
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h3,
+h4,
+h5,
+h6 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.3;
+}
+
+b,
+strong,
+th {
+  font-weight: var(--font-weight-medium);
+}
+
+code:not(pre code) {
+  display: inline;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  word-break: break-word;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--foreground);
+  font: inherit;
+  text-align: start;
+}
+
+.table :is(th, td) {
+  padding-block: 10px;
+  padding-inline: 0 24px;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--border);
+  text-align: start;
+  vertical-align: top;
+}
+
+.table-responsive > .table :is(th, td) {
+  overflow-wrap: break-word;
+}
+
+.table :is(th, td):last-child {
+  padding-inline-end: 0;
+}
+
+.table :is(caption, thead th) {
+  font-weight: 600;
+}
+
+.table thead th {
+  padding-block: 8px;
+  border-bottom-color: color-mix(in srgb, var(--foreground) 16%, transparent);
+}
+
+.table tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+
+.table.table-sm :is(th, td) {
+  padding-block: 6px;
+}
+
+.table.table-sm :is(th, td):not(:last-child) {
+  padding-inline-end: 16px;
+}
+
+.table :is(.text-end, [align="right"]) {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.table :is(.text-center, [align="center"]) {
+  text-align: center;
+}
+
+.table .text-nowrap {
+  white-space: nowrap;
+}
+
+#widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  background: transparent !important;
+}
+
+.card {
+  min-width: 0;
+  padding: 12px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  border-radius: var(--radius-2xl);
+  color: var(--card-foreground);
+  background: var(--card);
+}
+
+#widget > :not(.card) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(
+    20rem,
+    var(--tooltip-available-width, calc(100vw - 10px)),
+    calc(100vw - 10px)
+  );
+  max-height: min(
+    var(--tooltip-available-height, calc(100vh - 10px)),
+    calc(100vh - 10px)
+  );
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--popover-foreground);
+  background: var(--popover);
+  box-shadow: none;
+  font-size: var(--font-size-tooltip);
+  line-height: var(--line-height-tooltip);
+  overflow-wrap: break-word;
+  white-space: normal;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* The bundled tooltip runtime owns [data-tooltip]. AppBlock's CSS-only
+   pseudo-tooltip can widen dense grids even while hidden. */
+main [data-tooltip]::after {
+  content: none;
+}
+
+.viz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(180px, 24%), 1fr));
+  gap: 10px;
+}
+
+.viz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.viz-stat-value {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+.viz-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.viz-badge {
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  color: var(--accent-foreground);
+  background: var(--accent);
+  font-weight: var(--font-weight-medium);
+}
+
+small,
+.text-small,
+.viz-badge {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.viz-controls > .form-label {
+  display: grid;
+  min-width: min(100%, 260px);
+  flex: 1 1 280px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin-bottom: 0;
+}
+
+.viz-controls > .form-label > :is(.form-control, .form-range, .form-select) {
+  grid-column: 1 / -1;
+}
+
+.btn,
+.form-check-input,
+.form-control,
+.form-range,
+.form-select {
+  font: inherit;
+}
+
+.btn {
+  appearance: button;
+  display: inline-flex;
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 8px;
+  -webkit-app-region: no-drag;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: var(--cursor-interaction, pointer);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn:is(.btn-block, .viz-tile) {
+  inline-size: 100%;
+}
+
+.btn.viz-tile {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+a.btn {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn-primary {
+  border-color: transparent;
+  color: var(--interactive-label-primary-default, var(--primary-foreground));
+  background: var(--interactive-bg-primary-default, var(--foreground));
+  background-clip: padding-box;
+}
+
+.btn-primary .text-muted {
+  color: color-mix(
+    in srgb,
+    var(--interactive-label-primary-default, var(--primary-foreground)) 50%,
+    transparent
+  );
+}
+
+.btn-primary:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 80%, transparent);
+  background-clip: padding-box;
+}
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.btn-ghost:not(:disabled):hover {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+[data-lucide] {
+  stroke-width: 1.6;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--foreground);
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  padding: 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  color: var(--foreground);
+  background: var(--secondary);
+}
+
+.form-control::placeholder {
+  color: var(--muted-foreground);
+}
+
+.form-control[type="file"] {
+  padding: 0;
+  overflow: hidden;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control[type="file"]::file-selector-button {
+  min-height: 26px;
+  margin-right: 8px;
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid var(--input);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: inherit;
+  font: inherit;
+}
+
+.form-control[type="file"]:not(:disabled):hover::file-selector-button {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-control-color[type="color"] {
+  width: 40px;
+  height: 28px;
+  padding: 3px;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control-color[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.form-control-color[type="color"]::-webkit-color-swatch {
+  border: 0;
+  border-radius: calc(var(--radius-lg) - 4px);
+}
+
+textarea.form-control {
+  height: auto;
+  min-height: 72px;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.form-control:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.form-select {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  margin: 0;
+  padding: 0 32px 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  color: var(--foreground);
+  background-color: var(--secondary);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%),
+    linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) 50%,
+    calc(100% - 10px) 50%;
+  background-repeat: no-repeat;
+  background-size: 4px 4px;
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-select:not(:disabled):hover {
+  background-color: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-select:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-check {
+  display: flex;
+  min-height: 20px;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-check-input {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  margin: 0;
+  border: 1px solid var(--input);
+  color: var(--primary-foreground);
+  background-color: transparent;
+  cursor: var(--cursor-interaction, default);
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.form-check:not(.form-switch) .form-check-input[type="checkbox"] {
+  border-color: var(--input);
+  border-radius: var(--radius-sm);
+  background-color: var(--secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input:not(:disabled):not(:checked):hover {
+  background-color: var(--card);
+}
+
+.form-check:not(.form-switch) .form-check-input[type="checkbox"]:checked {
+  border-color: var(--primary);
+  background-color: var(--primary);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type="checkbox"]:checked::before {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-foreground);
+  content: "";
+  mask: var(--checkmark-image) center / 12px 12px no-repeat;
+}
+
+.form-check-input[type="radio"] {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+}
+
+.form-check-input[type="radio"]:checked {
+  border: 2px solid var(--primary);
+  background:
+    radial-gradient(circle, var(--primary-foreground) 0 2.5px, transparent 3px),
+    var(--primary);
+}
+
+.form-check:not(.form-switch) .form-check-input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+}
+
+.form-switch .form-check-input:disabled,
+.form-switch .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-check-label {
+  color: var(--foreground);
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-switch .form-check-input {
+  position: relative;
+  width: 32px;
+  height: 20px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  box-shadow: none;
+  transition: background-color 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 1px solid light-dark(var(--primary-foreground), var(--foreground));
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+  box-shadow: var(--shadow-sm);
+  content: "";
+  transform: translate(2px, -50%);
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input:checked {
+  background: var(--primary);
+}
+
+.form-switch .form-check-input:checked::before {
+  transform: translate(14px, -50%);
+}
+
+.form-switch .form-check-input:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.form-range {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 28px;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  border: 0;
+  accent-color: var(--primary);
+  background: linear-gradient(
+      color-mix(in srgb, var(--foreground) 7%, transparent),
+      color-mix(in srgb, var(--foreground) 7%, transparent)
+    )
+    center / 100% 2px no-repeat;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-webkit-slider-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range::-moz-range-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-moz-range-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.btn:not(.btn-primary, .viz-tile):is(
+    [aria-pressed="true"],
+    [aria-selected="true"],
+    .is-selected
+  ) {
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+.btn.viz-tile:is([aria-pressed="true"], [aria-selected="true"], .is-selected) {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+#widget > svg {
+  width: 100%;
+}
+
+.text-warning,
+.text-destructive {
+  color: var(--destructive);
+}
+</style>
+</head>
+<body>
+<div id="z13-reloj-transportador-v08" data-project-owner="the author of the Z13 project" data-version="0.9" aria-label="Z13 geometric instrument: clock, protractor, bezel, and two simultaneous 24- and 26-letter rings">
+  <style>
+    #z13-reloj-transportador-v08 {
+      width: 100%;
+      color: var(--foreground);
+    }
+
+    #z13-reloj-transportador-v08 .tool-layout {
+      display: grid;
+      gap: 12px;
+      width: 100%;
+    }
+
+    #z13-reloj-transportador-v08 .status-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: center;
+      gap: 6px 16px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    #z13-reloj-transportador-v08 .status-item {
+      display: inline-flex;
+      gap: 5px;
+      align-items: baseline;
+      white-space: nowrap;
+    }
+
+    #z13-reloj-transportador-v08 .status-value,
+    #z13-reloj-transportador-v08 .control-value {
+      color: var(--foreground);
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+    }
+
+    #z13-reloj-transportador-v08 .controls {
+      align-items: end;
+    }
+
+    #z13-reloj-transportador-v08 .control-field {
+      min-width: min(100%, 210px);
+      flex: 1 1 220px;
+    }
+
+    #z13-reloj-transportador-v08 .instrument-wrap {
+      display: grid;
+      place-items: center;
+      min-width: 0;
+      width: 100%;
+    }
+
+    #z13-reloj-transportador-v08 .instrument-svg {
+      width: min(100%, 800px);
+      height: auto;
+      overflow: visible;
+      touch-action: none;
+      user-select: none;
+    }
+
+    #z13-reloj-transportador-v08 .outer-band {
+      fill: color-mix(in srgb, var(--card) 90%, var(--viz-series-3) 10%);
+      stroke: var(--border);
+      stroke-width: 2;
+    }
+
+    #z13-reloj-transportador-v08 .case-ring {
+      fill: color-mix(in srgb, var(--muted) 72%, var(--card) 28%);
+      stroke: var(--foreground);
+      stroke-width: 2;
+    }
+
+    #z13-reloj-transportador-v08 .bezel-base {
+      fill: color-mix(in srgb, var(--muted) 82%, var(--viz-series-3) 18%);
+      stroke: var(--border);
+      stroke-width: 2;
+    }
+
+    #z13-reloj-transportador-v08 .dial {
+      fill: var(--card);
+      stroke: var(--foreground);
+      stroke-width: 2.5;
+    }
+
+    #z13-reloj-transportador-v08 .protractor-fill {
+      fill: color-mix(in srgb, var(--viz-series-3) 10%, transparent);
+      stroke: none;
+    }
+
+    #z13-reloj-transportador-v08 .protractor-arc {
+      fill: none;
+      stroke: color-mix(in srgb, var(--viz-series-3) 62%, var(--foreground) 38%);
+      stroke-width: 2;
+    }
+
+    #z13-reloj-transportador-v08 .axis-main {
+      stroke: var(--foreground);
+      stroke-width: 2.5;
+    }
+
+    #z13-reloj-transportador-v08 .axis-secondary {
+      stroke: var(--muted-foreground);
+      stroke-width: 1.4;
+      stroke-dasharray: 5 6;
+    }
+
+    #z13-reloj-transportador-v08 .structural-tick {
+      stroke: var(--border);
+      stroke-linecap: round;
+    }
+
+    #z13-reloj-transportador-v08 .fixed-tick,
+    #z13-reloj-transportador-v08 .bezel-tick {
+      stroke: var(--foreground);
+      stroke-linecap: round;
+    }
+
+    #z13-reloj-transportador-v08 .protractor-tick {
+      stroke: color-mix(in srgb, var(--foreground) 72%, transparent);
+      stroke-linecap: round;
+    }
+
+    #z13-reloj-transportador-v08 .bezel-zero {
+      fill: var(--viz-series-2);
+      stroke: var(--foreground);
+      stroke-width: 1.6;
+    }
+
+    #z13-reloj-transportador-v08 .bezel-triangle {
+      fill: var(--viz-series-1);
+      stroke: var(--foreground);
+      stroke-width: 1.4;
+    }
+
+    #z13-reloj-transportador-v08 .hour-label,
+    #z13-reloj-transportador-v08 .hour24-label,
+    #z13-reloj-transportador-v08 .letter-label,
+    #z13-reloj-transportador-v08 .degree-label,
+    #z13-reloj-transportador-v08 .protractor-label,
+    #z13-reloj-transportador-v08 .axis-label,
+    #z13-reloj-transportador-v08 .bezel-label,
+    #z13-reloj-transportador-v08 .arc-label {
+      fill: var(--foreground);
+      text-anchor: middle;
+      dominant-baseline: middle;
+      font-weight: 500;
+      pointer-events: none;
+    }
+
+    #z13-reloj-transportador-v08 .hour-label {
+      font-size: 22px;
+    }
+
+    #z13-reloj-transportador-v08 .hour24-label {
+      font-size: 14px;
+    }
+
+    #z13-reloj-transportador-v08 .letter-label {
+      font-size: 19px;
+    }
+
+    #z13-reloj-transportador-v08 .letter-label-24 {
+      font-size: 14px;
+      fill: var(--viz-series-3);
+    }
+
+    #z13-reloj-transportador-v08 .degree-label {
+      font-size: 11px;
+      fill: var(--muted-foreground);
+    }
+
+    #z13-reloj-transportador-v08 .protractor-label {
+      font-size: 11px;
+    }
+
+    #z13-reloj-transportador-v08 .protractor-label.reverse {
+      fill: var(--muted-foreground);
+      font-size: 10px;
+      font-weight: 400;
+    }
+
+    #z13-reloj-transportador-v08 .axis-label {
+      font-size: 24px;
+    }
+
+    #z13-reloj-transportador-v08 .bezel-label {
+      font-size: 14px;
+    }
+
+    #z13-reloj-transportador-v08 .arc-label {
+      font-size: 13px;
+    }
+
+    #z13-reloj-transportador-v08 .hour-hand {
+      fill: var(--foreground);
+      stroke: var(--foreground);
+      stroke-linejoin: round;
+    }
+
+    #z13-reloj-transportador-v08 .minute-hand {
+      fill: var(--viz-series-1);
+      stroke: var(--viz-series-1);
+      stroke-linejoin: round;
+    }
+
+    #z13-reloj-transportador-v08 .hand-hit {
+      fill: none;
+      stroke: transparent;
+      stroke-width: 34;
+      pointer-events: stroke;
+      cursor: grab;
+    }
+
+    #z13-reloj-transportador-v08 .hand-hit:active,
+    #z13-reloj-transportador-v08 .drag-ring:active {
+      cursor: grabbing;
+    }
+
+    #z13-reloj-transportador-v08 .drag-ring {
+      fill: none;
+      stroke: transparent;
+      cursor: grab;
+      pointer-events: stroke;
+    }
+
+    #z13-reloj-transportador-v08 .axis-arc-hour {
+      fill: none;
+      stroke: var(--foreground);
+      stroke-width: 2;
+      stroke-dasharray: 5 5;
+    }
+
+    #z13-reloj-transportador-v08 .axis-arc-minute {
+      fill: none;
+      stroke: var(--viz-series-1);
+      stroke-width: 2;
+      stroke-dasharray: 5 5;
+    }
+
+    #z13-reloj-transportador-v08 .hand-angle-arc {
+      fill: none;
+      stroke: var(--viz-series-4);
+      stroke-width: 4;
+      stroke-linecap: round;
+    }
+
+    #z13-reloj-transportador-v08 .hand-angle-label {
+      fill: var(--foreground);
+      stroke: var(--card);
+      stroke-width: 5;
+      paint-order: stroke fill;
+      text-anchor: middle;
+      dominant-baseline: middle;
+      font-size: 14px;
+      font-weight: 500;
+      pointer-events: none;
+    }
+
+    #z13-reloj-transportador-v08 .center-pin {
+      fill: var(--foreground);
+      stroke: var(--card);
+      stroke-width: 3;
+    }
+
+    #z13-reloj-transportador-v08 .center-m,
+    #z13-reloj-transportador-v08 .center-13 {
+      fill: var(--card);
+      text-anchor: middle;
+      font-weight: 500;
+      pointer-events: none;
+    }
+
+    #z13-reloj-transportador-v08 .center-m {
+      font-size: 24px;
+    }
+
+    #z13-reloj-transportador-v08 .center-13 {
+      font-size: 11px;
+    }
+
+    #z13-reloj-transportador-v08 .tool-note {
+      text-align: center;
+    }
+
+    #z13-reloj-transportador-v08 .project-mark {
+      text-align: center;
+    }
+
+    #z13-reloj-transportador-v08 .release-header {
+      width: min(100%, 920px);
+      margin-inline: auto;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--primary);
+      border-radius: var(--radius-lg);
+      background: var(--card);
+    }
+
+    #z13-reloj-transportador-v08 .release-header h1 {
+      margin: 0 0 4px;
+      font-size: var(--font-size-h2);
+      line-height: 1.2;
+    }
+
+    #z13-reloj-transportador-v08 .release-header p {
+      margin: 0;
+    }
+
+    @media (max-width: 560px) {
+      #z13-reloj-transportador-v08 .controls {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      #z13-reloj-transportador-v08 .control-field {
+        min-width: 0;
+      }
+
+      #z13-reloj-transportador-v08 .degree-label {
+        display: none;
+      }
+
+      #z13-reloj-transportador-v08 .protractor-label.reverse {
+        display: none;
+      }
+    }
+  </style>
+
+  <div class="tool-layout">
+    <header class="release-header">
+      <h1>Z13 · Simulator 3 · Final Instrument v0.9</h1>
+      <p class="text-small text-muted">Phase 2 closed · 12:1 clock, 60-step bezel, 0°–360° circular protractor, and independent 24- and 26-letter rings. The tool is frozen as an instrument; it does not constitute a validated cryptographic solution.</p>
+    </header>
+    <div class="status-row text-small" aria-live="polite">
+      <span class="status-item"><span class="text-muted">Time</span><span id="z13-time-status" class="status-value">12:00</span></span>
+      <span class="status-item"><span class="text-muted">Between hands</span><span id="z13-hand-angle-status" class="status-value">0,0°</span></span>
+      <span class="status-item"><span class="text-muted">Hour hand from 9</span><span id="z13-hour-axis-status" class="status-value">90,0°</span></span>
+      <span class="status-item"><span class="text-muted">Minute hand from 9</span><span id="z13-minute-axis-status" class="status-value">90°</span></span>
+      <span class="status-item"><span class="text-muted">Bezel</span><span id="z13-bezel-status" class="status-value">0 steps · 0°</span></span>
+      <span class="status-item"><span class="text-muted">26L ring · A=12/0</span><span id="z13-ring26-status" class="status-value">0 steps · 0°</span></span>
+      <span class="status-item"><span class="text-muted">24L ring · A=1</span><span id="z13-ring24-status" class="status-value">0 steps · 0°</span></span>
+      <span class="status-item"><span class="text-muted">Spacing</span><span class="status-value">26L 13.8461538° · 24L 15°</span></span>
+    </div>
+
+    <div class="viz-controls controls" aria-label="Instrument controls">
+      <label class="form-label control-field" for="z13-time-range">
+        Time · coupled hands: <span id="z13-time-value" class="control-value">12:00</span>
+        <input id="z13-time-range" class="form-range" type="range" min="0" max="719" step="1" value="0">
+      </label>
+      <label class="form-label control-field" for="z13-bezel-range">
+        Watch bezel: <span id="z13-bezel-value" class="control-value">0 steps · 0°</span>
+        <input id="z13-bezel-range" class="form-range" type="range" min="0" max="59" step="1" value="0">
+      </label>
+      <label class="form-label control-field" for="z13-ring26-range">
+        26L ring · A at 12/0: <span id="z13-ring26-value" class="control-value">0 steps · 0°</span>
+        <input id="z13-ring26-range" class="form-range" type="range" min="0" max="59" step="1" value="0">
+      </label>
+      <label class="form-label control-field" for="z13-ring24-range">
+        24L ring · A at 1: <span id="z13-ring24-value" class="control-value">0 steps · 0°</span>
+        <input id="z13-ring24-range" class="form-range" type="range" min="0" max="59" step="1" value="0">
+      </label>
+      <button id="z13-reset" class="btn" type="button">Reset</button>
+    </div>
+
+    <div class="instrument-wrap">
+      <svg id="z13-instrument" class="instrument-svg" viewBox="0 0 820 820" role="img" aria-labelledby="z13-svg-title z13-svg-desc">
+        <title id="z13-svg-title">Z13 geometric instrument with two visible 24- and 26-letter rings</title>
+        <desc id="z13-svg-desc">The outer 26-letter ring places A at 12, the clock’s zero origin. The inner 24-letter ring places A at position 1 on the 24-hour clock. Both rings and the bezel rotate independently in 6-degree angular steps.</desc>
+
+        <circle cx="410" cy="410" r="404" class="outer-band"></circle>
+        <circle cx="410" cy="410" r="366" fill="var(--card)" stroke="var(--border)" stroke-width="2"></circle>
+        <g id="z13-hour24"></g>
+        <g id="z13-letter-ring-24"></g>
+        <g id="z13-letter-ring-26"></g>
+
+        <circle cx="410" cy="410" r="338" class="case-ring"></circle>
+        <circle cx="410" cy="410" r="324" class="bezel-base"></circle>
+        <g id="z13-bezel"></g>
+
+        <circle cx="410" cy="410" r="274" class="dial"></circle>
+        <circle cx="410" cy="410" r="236" class="protractor-fill"></circle>
+        <circle cx="410" cy="410" r="236" class="protractor-arc"></circle>
+        <g id="z13-degree-scale"></g>
+        <g id="z13-protractor-scale"></g>
+        <g id="z13-clock12"></g>
+
+        <line x1="138" y1="410" x2="682" y2="410" class="axis-main"></line>
+        <line x1="410" y1="138" x2="410" y2="682" class="axis-secondary"></line>
+        <text x="156" y="410" class="axis-label">9</text>
+        <text x="664" y="410" class="axis-label">3</text>
+        <text x="410" y="156" class="axis-label">12</text>
+        <text x="410" y="664" class="axis-label">6</text>
+
+        <g id="z13-axis-arcs">
+          <path id="z13-hour-arc" class="axis-arc-hour"></path>
+          <text id="z13-hour-arc-label" class="arc-label"></text>
+          <path id="z13-minute-arc" class="axis-arc-minute"></path>
+          <text id="z13-minute-arc-label" class="arc-label"></text>
+          <path id="z13-hand-angle-arc" class="hand-angle-arc" aria-label="Smaller angle between the two hands"></path>
+          <text id="z13-hand-angle-label" class="hand-angle-label">0,0°</text>
+        </g>
+
+        <g id="z13-hour-hand">
+          <path d="M 400 426 L 410 217 L 420 426 L 410 451 Z" class="hour-hand"></path>
+          <path id="z13-hour-hit" d="M 410 451 L 410 198" class="hand-hit"></path>
+        </g>
+        <g id="z13-minute-hand">
+          <path d="M 404 432 L 410 148 L 416 432 L 410 455 Z" class="minute-hand"></path>
+          <path id="z13-minute-hit" d="M 410 455 L 410 128" class="hand-hit"></path>
+        </g>
+
+        <circle cx="410" cy="410" r="34" class="center-pin"></circle>
+        <text x="410" y="405" class="center-m">M</text>
+        <text x="410" y="424" class="center-13">13</text>
+
+        <circle id="z13-bezel-drag" cx="410" cy="410" r="306" class="drag-ring" stroke-width="52" aria-label="Drag bezel"></circle>
+        <circle id="z13-ring24-drag" cx="410" cy="410" r="352" class="drag-ring" stroke-width="28" aria-label="Drag 24-letter ring in 6-degree steps"></circle>
+        <circle id="z13-ring26-drag" cx="410" cy="410" r="387" class="drag-ring" stroke-width="42" aria-label="Drag 26-letter ring in 6-degree steps"></circle>
+      </svg>
+    </div>
+
+    <p class="tool-note text-small text-muted">Two simultaneous rings: 24L, A = 1 on the 24-hour clock with 15° spacing; 26L, A = 12/0 with 13.8461538° spacing. Each ring and the bezel rotate independently through 60 control steps of 6°. Circular protractor: 0°–360°.</p>
+    <p class="tool-note text-small text-muted"><strong>Open use:</strong> private and public use, study, modification, and redistribution are permitted. Derived versions and published results must be attributed to the author of the Z13 project.</p>
+    <p class="project-mark text-small text-muted">Z13 Project · research, conceptual design, and direction: the author · © 2026 · reconstruction v0.9 · <a href="mailto:radiozodiac13@gmail.com">radiozodiac13@gmail.com</a></p>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var root = document.getElementById("z13-reloj-transportador-v08");
+      var svg = root.querySelector("#z13-instrument");
+      var NS = "http://www.w3.org/2000/svg";
+      var C = { x: 410, y: 410 };
+      var totalMinutes = 0;
+      var bezelStep = 0;
+      var ring26Step = 0;
+      var ring24Step = 0;
+
+      var timeRange = root.querySelector("#z13-time-range");
+      var bezelRange = root.querySelector("#z13-bezel-range");
+      var ring26Range = root.querySelector("#z13-ring26-range");
+      var ring24Range = root.querySelector("#z13-ring24-range");
+      var hourHand = root.querySelector("#z13-hour-hand");
+      var minuteHand = root.querySelector("#z13-minute-hand");
+      var hourHit = root.querySelector("#z13-hour-hit");
+      var minuteHit = root.querySelector("#z13-minute-hit");
+      var bezelGroup = root.querySelector("#z13-bezel");
+      var bezelDrag = root.querySelector("#z13-bezel-drag");
+      var ring26Drag = root.querySelector("#z13-ring26-drag");
+      var ring24Drag = root.querySelector("#z13-ring24-drag");
+      var letterRing26 = root.querySelector("#z13-letter-ring-26");
+      var letterRing24 = root.querySelector("#z13-letter-ring-24");
+      var hour24Group = root.querySelector("#z13-hour24");
+      var degreeScale = root.querySelector("#z13-degree-scale");
+      var protractorScale = root.querySelector("#z13-protractor-scale");
+      var clock12 = root.querySelector("#z13-clock12");
+      var hourArc = root.querySelector("#z13-hour-arc");
+      var minuteArc = root.querySelector("#z13-minute-arc");
+      var hourArcLabel = root.querySelector("#z13-hour-arc-label");
+      var minuteArcLabel = root.querySelector("#z13-minute-arc-label");
+      var handAngleArc = root.querySelector("#z13-hand-angle-arc");
+      var handAngleLabel = root.querySelector("#z13-hand-angle-label");
+
+      var letterElements26 = [];
+      var letterTicks26 = [];
+      var letterElements24 = [];
+      var letters24 = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y"];
+      var letters26 = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+
+      function svgEl(name, attrs) {
+        var node = document.createElementNS(NS, name);
+        Object.keys(attrs || {}).forEach(function (key) {
+          node.setAttribute(key, String(attrs[key]));
+        });
+        return node;
+      }
+
+      function norm(value) {
+        value %= 360;
+        if (value < 0) value += 360;
+        return value;
+      }
+
+      function normMinutes(value) {
+        value %= 720;
+        if (value < 0) value += 720;
+        return value;
+      }
+
+      function polar(bearing, radius) {
+        var angle = bearing * Math.PI / 180;
+        return {
+          x: C.x + Math.sin(angle) * radius,
+          y: C.y - Math.cos(angle) * radius
+        };
+      }
+
+      function axisAngle(bearing) {
+        return norm(bearing + 90);
+      }
+
+      function signedDelta(next, previous) {
+        var delta = norm(next - previous);
+        if (delta > 180) delta -= 360;
+        return delta;
+      }
+
+      function shortestDelta(fromBearing, toBearing) {
+        var delta = norm(toBearing - fromBearing);
+        if (delta > 180) delta -= 360;
+        return delta;
+      }
+
+      function formatTime(minutes) {
+        var value = Math.round(normMinutes(minutes));
+        var hour = Math.floor(value / 60);
+        var minute = value % 60;
+        if (hour === 0) hour = 12;
+        return String(hour).padStart(2, "0") + ":" + String(minute).padStart(2, "0");
+      }
+
+      function decimalEs(value, digits) {
+        return Number(value).toFixed(digits).replace(".", ",");
+      }
+
+      function lineAt(group, bearing, r1, r2, className, strokeWidth) {
+        var a = polar(bearing, r1);
+        var b = polar(bearing, r2);
+        group.appendChild(svgEl("line", {
+          x1: a.x,
+          y1: a.y,
+          x2: b.x,
+          y2: b.y,
+          "class": className,
+          "stroke-width": strokeWidth
+        }));
+      }
+
+      for (var h24 = 1; h24 <= 24; h24 += 1) {
+        var bearing24 = (h24 % 24) * 15;
+        var tick24a = polar(bearing24, 338);
+        var tick24b = polar(bearing24, 366);
+        hour24Group.appendChild(svgEl("line", {
+          x1: tick24a.x,
+          y1: tick24a.y,
+          x2: tick24b.x,
+          y2: tick24b.y,
+          "class": "structural-tick",
+          "stroke-width": h24 % 6 === 0 ? 2 : 1
+        }));
+        var pos24 = polar(bearing24, 344);
+        var txt24 = svgEl("text", {
+          x: pos24.x,
+          y: pos24.y,
+          "class": "hour24-label"
+        });
+        txt24.textContent = h24 === 24 ? "24/0" : String(h24);
+        hour24Group.appendChild(txt24);
+      }
+
+      function buildLetters() {
+        letterRing26.replaceChildren();
+        letterRing24.replaceChildren();
+        letterElements26 = [];
+        letterTicks26 = [];
+        letterElements24 = [];
+        letters26.forEach(function (letter) {
+          var tick = svgEl("line", { "class": "structural-tick", "stroke-width": 1.4 });
+          var text = svgEl("text", { "class": "letter-label" });
+          text.textContent = letter;
+          letterRing26.appendChild(tick);
+          letterRing26.appendChild(text);
+          letterTicks26.push(tick);
+          letterElements26.push(text);
+        });
+        letters24.forEach(function (letter) {
+          var text = svgEl("text", { "class": "letter-label letter-label-24" });
+          text.textContent = letter;
+          letterRing24.appendChild(text);
+          letterElements24.push(text);
+        });
+      }
+
+      buildLetters();
+
+      for (var b = 0; b < 360; b += 5) {
+        var majorDegree = b % 30 === 0;
+        lineAt(degreeScale, b, majorDegree ? 248 : 257, 269, "fixed-tick", majorDegree ? 2 : 1);
+        if (majorDegree) {
+          var degreePos = polar(b, 239);
+          var degreeText = svgEl("text", {
+            x: degreePos.x,
+            y: degreePos.y,
+            "class": "degree-label"
+          });
+          degreeText.textContent = String(axisAngle(b));
+          degreeScale.appendChild(degreeText);
+        }
+      }
+
+      for (var p = 0; p < 360; p += 1) {
+        var pBearing = norm(270 + p);
+        var pMajor = p % 10 === 0;
+        var pMedium = p % 5 === 0;
+        lineAt(protractorScale, pBearing, pMajor ? 214 : pMedium ? 221 : 227, 236, "protractor-tick", pMajor ? 1.6 : pMedium ? 1 : 0.6);
+        if (pMajor && p % 20 === 0) {
+          var pPos = polar(pBearing, 202);
+          var pText = svgEl("text", {
+            x: pPos.x,
+            y: pPos.y,
+            "class": "protractor-label"
+          });
+          pText.textContent = String(p);
+          protractorScale.appendChild(pText);
+        }
+      }
+
+      for (var h = 1; h <= 12; h += 1) {
+        var hBearing = (h % 12) * 30;
+        var hourPos = polar(hBearing, 137);
+        var hourText = svgEl("text", {
+          x: hourPos.x,
+          y: hourPos.y,
+          "class": "hour-label"
+        });
+        hourText.textContent = String(h);
+        clock12.appendChild(hourText);
+      }
+
+      for (var i = 0; i < 60; i += 1) {
+        var holder = svgEl("g", { transform: "rotate(" + (i * 6) + " " + C.x + " " + C.y + ")" });
+        if (i === 0) {
+          holder.appendChild(svgEl("polygon", {
+            points: "410,86 392,122 428,122",
+            "class": "bezel-zero"
+          }));
+        } else if (i > 0 && i < 15 && i % 3 === 0) {
+          holder.appendChild(svgEl("polygon", {
+            points: "410,99 400,119 420,119",
+            "class": "bezel-triangle"
+          }));
+        } else if (i === 15) {
+          holder.appendChild(svgEl("line", {
+            x1: 410,
+            y1: 92,
+            x2: 410,
+            y2: 122,
+            "class": "bezel-tick",
+            "stroke-width": 6
+          }));
+        } else {
+          var detailed = i > 0 && i < 15;
+          var major = i % 5 === 0;
+          holder.appendChild(svgEl("line", {
+            x1: 410,
+            y1: detailed || major ? 96 : 104,
+            x2: 410,
+            y2: detailed || major ? 120 : 115,
+            "class": "bezel-tick",
+            "stroke-width": major ? 5 : detailed ? 2.5 : 1.5
+          }));
+        }
+        bezelGroup.appendChild(holder);
+      }
+
+      var thirtyPos = polar(180, 298);
+      var thirty = svgEl("text", {
+        x: thirtyPos.x,
+        y: thirtyPos.y,
+        "class": "bezel-label"
+      });
+      thirty.textContent = "30";
+      bezelGroup.appendChild(thirty);
+
+      function renderLetters() {
+        letterElements26.forEach(function (text, index) {
+          var bearing = norm(index * (360 / 26) + ring26Step * 6);
+          var tickA = polar(bearing, 369);
+          var tickB = polar(bearing, 404);
+          var labelPos = polar(bearing, 389);
+          letterTicks26[index].setAttribute("x1", tickA.x);
+          letterTicks26[index].setAttribute("y1", tickA.y);
+          letterTicks26[index].setAttribute("x2", tickB.x);
+          letterTicks26[index].setAttribute("y2", tickB.y);
+          text.setAttribute("x", labelPos.x);
+          text.setAttribute("y", labelPos.y);
+        });
+        letterElements24.forEach(function (text, index) {
+          var bearing = norm(15 + index * 15 + ring24Step * 6);
+          var labelPos = polar(bearing, 358);
+          text.setAttribute("x", labelPos.x);
+          text.setAttribute("y", labelPos.y);
+        });
+      }
+
+      function arcPathFromAxis(targetBearing, radius) {
+        var value = axisAngle(targetBearing);
+        var start = polar(270, radius);
+        var end = polar(targetBearing, radius);
+        return "M " + start.x + " " + start.y + " A " + radius + " " + radius + " 0 " + (value > 180 ? 1 : 0) + " 1 " + end.x + " " + end.y;
+      }
+
+      function renderAxisArc(path, label, targetBearing, radius, labelRadius, digits) {
+        var value = axisAngle(targetBearing);
+        path.setAttribute("d", arcPathFromAxis(targetBearing, radius));
+        var midBearing = norm(270 + value / 2);
+        var position = polar(midBearing, labelRadius);
+        label.setAttribute("x", position.x);
+        label.setAttribute("y", position.y);
+        label.textContent = decimalEs(value, digits) + "°";
+      }
+
+      function renderHandAngle(hourBearing, minuteBearing) {
+        var delta = shortestDelta(hourBearing, minuteBearing);
+        var angle = Math.abs(delta);
+        var radius = 158;
+        if (angle < 0.001) {
+          handAngleArc.setAttribute("d", "");
+        } else {
+          var start = polar(hourBearing, radius);
+          var end = polar(minuteBearing, radius);
+          handAngleArc.setAttribute("d", "M " + start.x + " " + start.y + " A " + radius + " " + radius + " 0 0 " + (delta >= 0 ? 1 : 0) + " " + end.x + " " + end.y);
+        }
+        var labelBearing = norm(hourBearing + delta / 2);
+        var labelPosition = polar(labelBearing, radius);
+        handAngleLabel.setAttribute("x", labelPosition.x);
+        handAngleLabel.setAttribute("y", labelPosition.y);
+        handAngleLabel.textContent = decimalEs(angle, 1) + "°";
+        return angle;
+      }
+
+      function render() {
+        totalMinutes = normMinutes(totalMinutes);
+        bezelStep = ((Math.round(bezelStep) % 60) + 60) % 60;
+        ring26Step = ((Math.round(ring26Step) % 60) + 60) % 60;
+        ring24Step = ((Math.round(ring24Step) % 60) + 60) % 60;
+
+        var roundedMinutes = Math.round(totalMinutes);
+        var hourBearing = norm(roundedMinutes * 0.5);
+        var minuteBearing = norm((roundedMinutes % 60) * 6);
+        var hourAxis = axisAngle(hourBearing);
+        var minuteAxis = axisAngle(minuteBearing);
+        var handAngle = renderHandAngle(hourBearing, minuteBearing);
+        var time = formatTime(roundedMinutes);
+        var bezelText = bezelStep + " steps · " + (bezelStep * 6) + "°";
+        var ring26Text = ring26Step + " steps · " + (ring26Step * 6) + "°";
+        var ring24Text = ring24Step + " steps · " + (ring24Step * 6) + "°";
+
+        hourHand.setAttribute("transform", "rotate(" + hourBearing + " " + C.x + " " + C.y + ")");
+        minuteHand.setAttribute("transform", "rotate(" + minuteBearing + " " + C.x + " " + C.y + ")");
+        bezelGroup.setAttribute("transform", "rotate(" + (bezelStep * 6) + " " + C.x + " " + C.y + ")");
+        renderLetters();
+        renderAxisArc(hourArc, hourArcLabel, hourBearing, 91, 76, 1);
+        renderAxisArc(minuteArc, minuteArcLabel, minuteBearing, 119, 137, 0);
+
+        timeRange.value = String(roundedMinutes);
+        bezelRange.value = String(bezelStep);
+        ring26Range.value = String(ring26Step);
+        ring24Range.value = String(ring24Step);
+        root.querySelector("#z13-time-status").textContent = time;
+        root.querySelector("#z13-hand-angle-status").textContent = decimalEs(handAngle, 1) + "°";
+        root.querySelector("#z13-hour-axis-status").textContent = decimalEs(hourAxis, 1) + "°";
+        root.querySelector("#z13-minute-axis-status").textContent = decimalEs(minuteAxis, 0) + "°";
+        root.querySelector("#z13-bezel-status").textContent = bezelText;
+        root.querySelector("#z13-ring26-status").textContent = ring26Text;
+        root.querySelector("#z13-ring24-status").textContent = ring24Text;
+        root.querySelector("#z13-time-value").textContent = time;
+        root.querySelector("#z13-bezel-value").textContent = bezelText;
+        root.querySelector("#z13-ring26-value").textContent = ring26Text;
+        root.querySelector("#z13-ring24-value").textContent = ring24Text;
+      }
+
+      function pointerBearing(event) {
+        var point = svg.createSVGPoint();
+        point.x = event.clientX;
+        point.y = event.clientY;
+        var local = point.matrixTransform(svg.getScreenCTM().inverse());
+        return norm(Math.atan2(local.x - C.x, -(local.y - C.y)) * 180 / Math.PI);
+      }
+
+      function attachHandDrag(hit, minutesPerDegree) {
+        var active = false;
+        var previousBearing = 0;
+        hit.addEventListener("pointerdown", function (event) {
+          active = true;
+          previousBearing = pointerBearing(event);
+          hit.setPointerCapture(event.pointerId);
+        });
+        hit.addEventListener("pointermove", function (event) {
+          if (!active) return;
+          var nextBearing = pointerBearing(event);
+          totalMinutes = normMinutes(totalMinutes + signedDelta(nextBearing, previousBearing) * minutesPerDegree);
+          previousBearing = nextBearing;
+          render();
+        });
+        function stop() {
+          active = false;
+        }
+        hit.addEventListener("pointerup", stop);
+        hit.addEventListener("pointercancel", stop);
+      }
+
+      function attachDiscreteDrag(hit, steps, degreesPerStep, update) {
+        var active = false;
+        var startBearing = 0;
+        var startStep = 0;
+        hit.addEventListener("pointerdown", function (event) {
+          active = true;
+          startBearing = pointerBearing(event);
+          startStep = update();
+          hit.setPointerCapture(event.pointerId);
+        });
+        hit.addEventListener("pointermove", function (event) {
+          if (!active) return;
+          var delta = signedDelta(pointerBearing(event), startBearing);
+          var next = ((startStep + Math.round(delta / degreesPerStep)) % steps + steps) % steps;
+          update(next);
+          render();
+        });
+        function stop() {
+          active = false;
+        }
+        hit.addEventListener("pointerup", stop);
+        hit.addEventListener("pointercancel", stop);
+      }
+
+      timeRange.addEventListener("input", function () {
+        totalMinutes = Number(timeRange.value);
+        render();
+      });
+      bezelRange.addEventListener("input", function () {
+        bezelStep = Number(bezelRange.value);
+        render();
+      });
+      ring26Range.addEventListener("input", function () {
+        ring26Step = Number(ring26Range.value);
+        render();
+      });
+      ring24Range.addEventListener("input", function () {
+        ring24Step = Number(ring24Range.value);
+        render();
+      });
+      root.querySelector("#z13-reset").addEventListener("click", function () {
+        totalMinutes = 0;
+        bezelStep = 0;
+        ring26Step = 0;
+        ring24Step = 0;
+        render();
+      });
+
+      attachHandDrag(hourHit, 2);
+      attachHandDrag(minuteHit, 1 / 6);
+      attachDiscreteDrag(bezelDrag, 60, 6, function (next) {
+        if (typeof next === "number") bezelStep = next;
+        return bezelStep;
+      });
+      attachDiscreteDrag(ring26Drag, 60, 6, function (next) {
+        if (typeof next === "number") ring26Step = next;
+        return ring26Step;
+      });
+      attachDiscreteDrag(ring24Drag, 60, 6, function (next) {
+        if (typeof next === "number") ring24Step = next;
+        return ring24Step;
+      });
+
+      render();
+    })();
+  </script>
+</div>
+
+</body>
+</html>

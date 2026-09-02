@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Z13 · Simulator 2 · Historical G.F.R.POSTE Sector</title>
+<meta name="author" content="the author of the Z13 project" />
+<meta name="description" content="Intermediate Phase 2 instrument in which the historical candidate reading G.F.R.POSTE reappears." />
+<meta name="rights" content="© 2026 the author of the Z13 project. Free use, study, modification, and redistribution with attribution." />
+<style>
+:root{
+  --bg:#f2f1ec;--card:#fff;--ink:#111;--muted:#666;--line:#d6d5cf;
+  --soft:#fafaf8;--blue:#1f6fb2;--red:#d13b2e;--pair:#222;--outer:#5a4c36;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink)}
+header{max-width:1180px;margin:auto;padding:14px 18px 8px}
+h1{margin:0 0 4px;font-size:22px}
+.sub{font-size:12.5px;color:var(--muted);line-height:1.4}
+main{max-width:1180px;margin:auto;padding:8px 18px 18px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 10px}
+.control{border:1px solid #deddd8;border-radius:10px;padding:8px 10px;background:#fafaf8}
+.control label{display:block;font-size:11.5px;color:#555;margin-bottom:5px}
+.control input[type=range]{width:100%}
+.readout{font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.35}
+.topbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin:0 0 10px}
+.live-strip{display:flex;gap:8px;flex-wrap:wrap;padding:8px 10px;border:1px solid #d8d7d1;border-radius:10px;background:#f7f7f4;font-variant-numeric:tabular-nums;flex:1}
+.live-pill{display:inline-flex;gap:4px;align-items:baseline;padding:4px 7px;border:1px solid #e1e0da;border-radius:7px;background:#fff;font-size:12px;white-space:nowrap}
+.live-pill b{font-size:13px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap}
+button{border:1px solid #bbb;background:#fff;border-radius:8px;padding:8px 11px;font-size:12px;cursor:pointer}
+button:hover{background:#f3f3f3}
+.stage{background:#fbfbfa;border:1px solid #deddd8;border-radius:14px;display:flex;align-items:center;justify-content:center;overflow:hidden;min-height:620px}
+svg{display:block;max-width:100%;height:auto;touch-action:none;user-select:none;overflow:visible}.watch-svg{width:min(100%,860px)}
+.legend{margin-top:10px;font-size:12px;color:#555;line-height:1.5}.legend b{color:#222}
+.case-outer{fill:#ededeb;stroke:#1a1a1a;stroke-width:2}.case-inner{fill:#d7d6d1;stroke:#1a1a1a;stroke-width:2}.bezel-base{fill:#dad9d4;stroke:#111;stroke-width:2}.dial-face{fill:#fff;stroke:#111;stroke-width:3}
+.bezel-line,.fixed-mark{stroke:#111;stroke-linecap:round}.bezel-triangle{fill:var(--blue);stroke:#111;stroke-width:1.5}.bezel-zero{fill:var(--red);stroke:#111;stroke-width:1.7}.bezel-label,.dial-label{fill:#111;text-anchor:middle;dominant-baseline:middle;font-weight:600}.dial-authorship{fill:#6c6c6c;text-anchor:middle;font-size:10px;font-weight:500;letter-spacing:.04em}
+.hour-hand{fill:#111;stroke:#111;stroke-linejoin:round}.minute-hand{fill:var(--blue);stroke:var(--blue);stroke-linejoin:round}.hand-hit{fill:none;stroke:transparent;stroke-width:34;pointer-events:stroke;cursor:grab}.hand-hit:active{cursor:grabbing}.center-pin{fill:#111;stroke:#fff;stroke-width:3}.crown-metal{fill:#ecebe7;stroke:#111;stroke-width:2}
+.ring-bg{fill:none;stroke:#fff;stroke-width:30}.ring-border{fill:none;stroke:#aaa;stroke-width:1.3}.ring-tick{stroke:#999;stroke-width:1.2}.pair-text{fill:var(--pair);text-anchor:middle;dominant-baseline:middle;font-size:17px;font-weight:700}.outer-letter{fill:var(--outer);text-anchor:middle;dominant-baseline:middle;font-size:17px;font-weight:700}.outer-pos{fill:#6f6f6f;text-anchor:middle;dominant-baseline:middle;font-size:11.5px;font-weight:700}.sector-ring-bg{fill:none;stroke:#e1e0db;stroke-width:24}.sector-ring-border{fill:none;stroke:#b9b7b0;stroke-width:1.2}.sector-letter{fill:#4d4b45;text-anchor:middle;dominant-baseline:middle;font-size:16px;font-weight:700}.sector-divider{stroke:#c6c4be;stroke-width:1.1}
+.ring-hit{fill:none;stroke:transparent;stroke-width:34;cursor:grab;pointer-events:stroke}.ring-hit:active{cursor:grabbing}.drag-ring{fill:none;stroke:transparent;stroke-width:58;cursor:grab}.drag-ring:active{cursor:grabbing}
+.center-m{fill:#111;stroke:#fff;stroke-width:3}.center-m-letter{fill:#fff;text-anchor:middle;dominant-baseline:middle;font-size:27px;font-weight:700}.center-m-num{fill:#fff;text-anchor:middle;font-size:11px;font-weight:700}.axis-line{stroke:#8c8c88;stroke-width:1.5;stroke-dasharray:5 5}.axis-tag{fill:#444;font-size:11px;text-anchor:middle;font-weight:700}
+.zodiac-mark line,.zodiac-mark circle{stroke:#111;stroke-width:2;fill:none}
+.history-callout{margin:0 0 10px;padding:11px 13px;border:1px solid #e0a43a;border-left:5px solid #d97706;border-radius:10px;background:#fff8e8;font-size:12.5px;line-height:1.45}
+.history-callout strong{color:#8a3f00}.history-callout p{margin:0}.history-callout p+p{margin-top:5px}
+.history-overlay{pointer-events:none}.history-sector{fill:rgba(245,158,11,.14);stroke:#d97706;stroke-width:2;stroke-dasharray:7 5}
+.history-title{fill:#7c2d12;text-anchor:middle;font-size:11.5px;font-weight:700;letter-spacing:.025em;paint-order:stroke;stroke:#fff;stroke-width:3px}
+.history-subtitle{fill:#7c2d12;text-anchor:middle;font-size:8.5px;font-weight:600;paint-order:stroke;stroke:#fff;stroke-width:2.5px}
+body:not(.history-off) .candidate-source{fill:#b42318;paint-order:stroke;stroke:#fff4da;stroke-width:5px;font-weight:900}
+.history-off .history-overlay{display:none}
+footer{max-width:1180px;margin:0 auto 18px;padding:0 18px;color:#777;font-size:11px}
+@media(max-width:980px){.controls{grid-template-columns:repeat(2,minmax(0,1fr))}.topbar{flex-direction:column;align-items:stretch}.stage{min-height:540px}}
+@media(max-width:640px){.controls{grid-template-columns:1fr}.stage{min-height:470px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Z13 · Simulator 2 · Historical G.F.R.POSTE Sector</h1>
+  <div class="sub">Intermediate Phase 2 instrument: 60-position bezel, 12:1 coupled hands, 12-pair ring, and 24-letter outer ring.</div>
+</header>
+<main>
+<div class="panel">
+  <div class="history-callout" role="note">
+    <p><strong>What this copy shows:</strong> in the base position, the highlighted sector contains seven outer letters - I, J, K, L, N, O, P - and three pairs - E/R, F/S, G/T - for thirteen individual letters in total.</p>
+    <p>Within that set are the eight letters of <strong>G.F.R.POSTE</strong>. It is a historical candidate reading: an internal rule is still needed to select those eight letters and determine their order. The orange layer documents the observation; it does not add a cryptographic rule.</p>
+  </div>
+  <div class="controls">
+    <div class="control">
+      <label for="timeValue">Crown / time · 12:1 coupled hands</label>
+      <input id="timeValue" type="range" min="0" max="719" step="1" value="0" />
+      <div class="readout"><span id="timeReadout">12:00</span> · hour <span id="hourReadout">0.0°</span> · minute <span id="minuteReadout">0°</span></div>
+    </div>
+    <div class="control">
+      <label for="bezelValue">Bezel · 60 positions / 6°</label>
+      <input id="bezelValue" type="range" min="0" max="59" step="1" value="0" />
+      <div class="readout"><span id="bezelStepReadout">0</span> marks · <span id="bezelDegReadout">0°</span></div>
+    </div>
+    <div class="control">
+      <label for="pairValue">Pair ring · 12 positions</label>
+      <input id="pairValue" type="range" min="0" max="11" step="1" value="0" />
+      <div class="readout"><span id="pairStepReadout">0</span> sectors · <span id="pairDegReadout">0°</span></div>
+    </div>
+    <div class="control">
+      <label for="outerValue">Outer ring · 24 letters / 15°</label>
+      <input id="outerValue" type="range" min="0" max="23" step="1" value="0" />
+      <div class="readout"><span id="outerStepReadout">0</span> positions · <span id="outerDegReadout">0°</span></div>
+    </div>
+  </div>
+
+  <div class="topbar">
+    <div class="live-strip" aria-live="polite">
+      <span class="live-pill">Time <b id="timeTop">12:00</b></span>
+      <span class="live-pill">Hour hand <b id="hourTop">0.0°</b></span>
+      <span class="live-pill">Minute hand <b id="minuteTop">0°</b></span>
+      <span class="live-pill">Bezel <b id="bezelTop">0°</b></span>
+      <span class="live-pill">Pairs <b id="pairTop">0°</b></span>
+      <span class="live-pill">24 letters <b id="outerTop">0°</b></span>
+    </div>
+    <div class="toolbar">
+      <button id="resetBtn" type="button">Reset</button>
+      <button id="snapBtn" type="button">Snap to whole minute</button>
+      <button id="historyBtn" type="button" aria-pressed="true">Hide historical observation</button>
+    </div>
+  </div>
+
+  <div class="stage">
+    <svg id="watch" class="watch-svg" viewBox="-150 -150 900 900" aria-label="Watch with 24-letter ring and 12-pair ring">
+      <circle cx="300" cy="300" r="382" class="ring-bg"></circle>
+      <circle cx="300" cy="300" r="397" class="ring-border"></circle>
+      <circle cx="300" cy="300" r="367" class="ring-border"></circle>
+      <g id="outerGroup"></g>
+
+      <circle cx="300" cy="300" r="342" class="ring-bg"></circle>
+      <circle cx="300" cy="300" r="357" class="ring-border"></circle>
+      <circle cx="300" cy="300" r="327" class="ring-border"></circle>
+      <g id="pairGroup"></g>
+
+      <circle cx="300" cy="300" r="314" class="case-outer"></circle>
+      <circle cx="300" cy="300" r="300" class="case-inner"></circle>
+
+      <circle cx="300" cy="300" r="282" class="bezel-base"></circle>
+      <g id="bezelGroup"></g>
+      <circle cx="300" cy="300" r="235" class="dial-face"></circle>
+      <g id="dialMarks"></g>
+      <g id="sectorAlphaGroup"></g>
+
+      <line x1="75" y1="300" x2="525" y2="300" class="axis-line"></line>
+      <text x="98" y="286" class="axis-tag">9</text>
+      <text x="502" y="286" class="axis-tag">3</text>
+
+      <g aria-hidden="true">
+        <circle cx="300" cy="178" r="14" fill="none" stroke="#111" stroke-width="2"></circle>
+        <line x1="281" y1="178" x2="319" y2="178" stroke="#111" stroke-width="2"></line>
+        <line x1="300" y1="159" x2="300" y2="197" stroke="#111" stroke-width="2"></line>
+      </g>
+
+      <g id="hourHandGroup">
+        <path class="hour-hand" d="M 292 310 L 300 188 L 308 310 L 300 330 Z"></path>
+        <path id="hourHandHit" class="hand-hit" d="M 300 330 L 300 178" aria-label="Drag the hour hand"></path>
+      </g>
+      <g id="minuteHandGroup">
+        <path class="minute-hand" d="M 295 316 L 300 123 L 305 316 L 300 334 Z"></path>
+        <path id="minuteHandHit" class="hand-hit" d="M 300 334 L 300 113" aria-label="Drag the minute hand"></path>
+      </g>
+
+      <circle cx="300" cy="300" r="29" class="center-m"></circle>
+      <text x="300" y="296" class="center-m-letter">M</text>
+      <text x="300" y="316" class="center-m-num">13</text>
+
+      <circle id="bezelDrag" cx="300" cy="300" r="270" class="drag-ring" aria-label="Drag the bezel"></circle>
+      <circle id="pairDrag" cx="300" cy="300" r="342" class="ring-hit" aria-label="Drag the pair ring"></circle>
+      <circle id="outerDrag" cx="300" cy="300" r="382" class="ring-hit" aria-label="Drag the 24-letter ring"></circle>
+      <g class="history-overlay" aria-label="Historical thirteen-letter sector and G.F.R.POSTE candidate subset">
+        <path class="history-sector" d="M 596.98 596.98 A 420 420 0 0 1 3.02 596.98 L 73.73 526.27 A 320 320 0 0 0 526.27 526.27 Z"></path>
+        <text x="300" y="690" class="history-title">G · F · R · P · O · S · T · E</text>
+        <text x="300" y="708" class="history-subtitle">CANDIDATE SUBSET · SELECTION AND ORDER NOT DEMONSTRATED</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="legend">
+    <b>Pair ring:</b> 1 A/N · 2 B/O · 3 C/P · 4 D/Q · 5 E/R · 6 F/S · 7 G/T · 8 H/U · 9 I/V · 10 J/W · 11 K/X · 12 L/Y. <b>M=13</b> remains at the center.<br>
+    <b>24-letter outer ring:</b> clock positions 1–24 = A, B, C, D, E, F, G, H, I, J, K, L, N, O, P, Q, R, S, T, U, V, W, X, Y. On a real 24-hour dial, position 24 is at the top, 6 at the right, 12 at the bottom, and 18 at the left.<br>
+    <b>Fixed A-L sector ring:</b> each hourly sector of the clock carries a fixed letter: 0–1=A, 1–2=B, 2–3=C, 3–4=D, 4–5=E, 5–6=F, 6–7=G, 7–8=H, 8–9=I, 9–10=J, 10–11=K, 11–12=L.
+    <b>Zodiac symbol:</b> integrated into the 3 o’clock mark inside the clock so that it does not interfere with the outer reading.
+  </div>
+</div>
+</main>
+<footer>Z13 Project · research and conceptual design: the author · free use with attribution · <a href="mailto:radiozodiac13@gmail.com">radiozodiac13@gmail.com</a></footer>
+
+<script>
+(() => {
+  const NS='http://www.w3.org/2000/svg';
+  const watch=document.getElementById('watch');
+  const bezelGroup=document.getElementById('bezelGroup');
+  const dialMarks=document.getElementById('dialMarks');
+  const sectorAlphaGroup=document.getElementById('sectorAlphaGroup');
+  const pairGroup=document.getElementById('pairGroup');
+  const outerGroup=document.getElementById('outerGroup');
+  const hourHandGroup=document.getElementById('hourHandGroup');
+  const minuteHandGroup=document.getElementById('minuteHandGroup');
+  const hourHandHit=document.getElementById('hourHandHit');
+  const minuteHandHit=document.getElementById('minuteHandHit');
+  const bezelDrag=document.getElementById('bezelDrag');
+  const pairDrag=document.getElementById('pairDrag');
+  const outerDrag=document.getElementById('outerDrag');
+  const timeValue=document.getElementById('timeValue');
+  const bezelValue=document.getElementById('bezelValue');
+  const pairValue=document.getElementById('pairValue');
+  const outerValue=document.getElementById('outerValue');
+  const historyBtn=document.getElementById('historyBtn');
+  let totalMinutes=0;
+
+  function el(name,attrs={}){const e=document.createElementNS(NS,name);for(const [k,v] of Object.entries(attrs))e.setAttribute(k,v);return e;}
+  function polar(angleDeg,r){const a=angleDeg*Math.PI/180;return{x:300+Math.sin(a)*r,y:300-Math.cos(a)*r};}
+
+  for(let i=0;i<60;i++){
+    const holder=el('g',{transform:`rotate(${i*6} 300 300)`});
+    if(i===0){holder.appendChild(el('polygon',{points:'300,31 282,65 318,65',class:'bezel-zero'}));}
+    else if(i>0&&i<15&&i%3===0){holder.appendChild(el('polygon',{points:'300,44 291,61 309,61',class:'bezel-triangle'}));}
+    else if(i===15){holder.appendChild(el('line',{x1:300,y1:38,x2:300,y2:67,class:'bezel-line','stroke-width':7}));}
+    else{
+      const detailed=i>0&&i<15, major=i%5===0;
+      holder.appendChild(el('line',{x1:300,y1:(detailed||major)?43:50,x2:300,y2:(detailed||major)?64:58,class:'bezel-line','stroke-width':major?6:detailed?3:2}));
+    }
+    bezelGroup.appendChild(holder);
+  }
+  const p30=polar(180,253);const thirty=el('text',{x:p30.x,y:p30.y,class:'bezel-label'});thirty.textContent='30';bezelGroup.appendChild(thirty);
+
+  for(let i=0;i<60;i++){
+    const major=i%5===0;
+    dialMarks.appendChild(el('line',{x1:300,y1:major?84:91,x2:300,y2:major?108:101,class:'fixed-mark','stroke-width':major?5:2,transform:`rotate(${i*6} 300 300)`}));
+  }
+  // Se eliminan los textos decorativos de 12, 6 y 9 para una vista más limpia.
+  const z=el('g',{class:'zodiac-mark',transform:'translate(478 300)'});
+  z.appendChild(el('circle',{cx:0,cy:0,r:10}));
+  z.appendChild(el('line',{x1:-15,y1:0,x2:15,y2:0}));
+  z.appendChild(el('line',{x1:0,y1:-15,x2:0,y2:15}));
+  dialMarks.appendChild(z);
+
+  // Aro fijo de sectores A-L: una letra por sector horario (0-1=A ... 11-12=L)
+  sectorAlphaGroup.appendChild(el('circle',{cx:300,cy:300,r:153,class:'sector-ring-bg'}));
+  sectorAlphaGroup.appendChild(el('circle',{cx:300,cy:300,r:165,class:'sector-ring-border'}));
+  sectorAlphaGroup.appendChild(el('circle',{cx:300,cy:300,r:141,class:'sector-ring-border'}));
+  const sectorLetters=['A','B','C','D','E','F','G','H','I','J','K','L'];
+  sectorLetters.forEach((letter,i)=>{
+    const centerAngle=(i+0.5)*30;
+    const p=polar(centerAngle,153);
+    const t=el('text',{x:p.x,y:p.y,class:'sector-letter'});
+    t.textContent=letter;
+    sectorAlphaGroup.appendChild(t);
+    const d=el('line',{x1:300,y1:141,x2:300,y2:165,class:'sector-divider',transform:`rotate(${i*30} 300 300)`});
+    sectorAlphaGroup.appendChild(d);
+  });
+
+  const pairs=['A/N','B/O','C/P','D/Q','E/R','F/S','G/T','H/U','I/V','J/W','K/X','L/Y'];
+  pairs.forEach((txt,i)=>{
+    const h=i+1, angle=h===12?0:h*30;
+    const ti1=polar(angle,327),ti2=polar(angle,357);pairGroup.appendChild(el('line',{x1:ti1.x,y1:ti1.y,x2:ti2.x,y2:ti2.y,class:'ring-tick'}));
+    const p=polar(angle,342);const t=el('text',{x:p.x,y:p.y,class:'pair-text'});t.textContent=txt;if(['E/R','F/S','G/T'].includes(txt))t.classList.add('candidate-source');pairGroup.appendChild(t);
+  });
+
+  const letters24=['A','B','C','D','E','F','G','H','I','J','K','L','N','O','P','Q','R','S','T','U','V','W','X','Y'];
+  letters24.forEach((letter,i)=>{
+    const pos=i+1; const angle=(pos%24)*15;
+    const t1=polar(angle,367),t2=polar(angle,397);
+    outerGroup.appendChild(el('line',{x1:t1.x,y1:t1.y,x2:t2.x,y2:t2.y,class:'ring-tick'}));
+    const p=polar(angle,381);const t=el('text',{x:p.x,y:p.y,class:'outer-letter'});t.textContent=letter;if(['O','P'].includes(letter))t.classList.add('candidate-source');outerGroup.appendChild(t);
+    const np=polar(angle,408);const n=el('text',{x:np.x,y:np.y,class:'outer-pos'});n.textContent=String(pos);outerGroup.appendChild(n);
+  });
+
+  const top={
+    time:document.getElementById('timeTop'),hour:document.getElementById('hourTop'),minute:document.getElementById('minuteTop'),bezel:document.getElementById('bezelTop'),pair:document.getElementById('pairTop'),outer:document.getElementById('outerTop')
+  };
+  const out={time:document.getElementById('timeReadout'),hour:document.getElementById('hourReadout'),minute:document.getElementById('minuteReadout'),bs:document.getElementById('bezelStepReadout'),bd:document.getElementById('bezelDegReadout'),ps:document.getElementById('pairStepReadout'),pd:document.getElementById('pairDegReadout'),os:document.getElementById('outerStepReadout'),od:document.getElementById('outerDegReadout')};
+
+  function norm720(v){return((Math.round(v)%720)+720)%720;}
+  function angles(mins){const m=norm720(mins);return{hour:(m*.5)%360,minute:(m%60)*6};}
+  function fmt(mins){const m=norm720(mins),h=Math.floor(m/60),mm=m%60;return`${String(h===0?12:h).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;}
+
+  function render(){
+    totalMinutes=norm720(totalMinutes);timeValue.value=String(totalMinutes);
+    const a=angles(totalMinutes),bz=Number(bezelValue.value),ps=Number(pairValue.value),os=Number(outerValue.value);
+    hourHandGroup.setAttribute('transform',`rotate(${a.hour} 300 300)`);
+    minuteHandGroup.setAttribute('transform',`rotate(${a.minute} 300 300)`);
+    bezelGroup.setAttribute('transform',`rotate(${bz*6} 300 300)`);
+    pairGroup.setAttribute('transform',`rotate(${ps*30} 300 300)`);
+    outerGroup.setAttribute('transform',`rotate(${os*15} 300 300)`);
+
+    const ft=fmt(totalMinutes),hd=`${a.hour.toFixed(1)}°`,md=`${a.minute.toFixed(0)}°`,bd=`${bz*6}°`,pd=`${ps*30}°`,od=`${os*15}°`;
+    top.time.textContent=ft;top.hour.textContent=hd;top.minute.textContent=md;top.bezel.textContent=bd;top.pair.textContent=pd;top.outer.textContent=od;
+    out.time.textContent=ft;out.hour.textContent=hd;out.minute.textContent=md;out.bs.textContent=bz;out.bd.textContent=bd;out.ps.textContent=ps;out.pd.textContent=pd;out.os.textContent=os;out.od.textContent=od;
+  }
+
+  timeValue.addEventListener('input',()=>{totalMinutes=Number(timeValue.value);render();});
+  [bezelValue,pairValue,outerValue].forEach(x=>x.addEventListener('input',render));
+
+  function watchPointerAngle(evt){
+    const pt=watch.createSVGPoint();pt.x=evt.clientX;pt.y=evt.clientY;
+    const p=pt.matrixTransform(watch.getScreenCTM().inverse());
+    let d=Math.atan2(p.x-300,-(p.y-300))*180/Math.PI;if(d<0)d+=360;return d;
+  }
+  function setFromMinute(angle){
+    const cur=norm720(totalMinutes),hr=Math.floor(cur/60),min=Math.round(angle/6)%60;
+    const cand=[hr*60+min,(hr+1)*60+min,(hr-1)*60+min];
+    totalMinutes=norm720(cand.reduce((a,b)=>Math.abs(a-cur)<=Math.abs(b-cur)?a:b));
+  }
+  function setFromHour(angle){
+    const cur=norm720(totalMinutes),target=Math.round(angle*2)%720;
+    const cand=[target,target+720,target-720];
+    totalMinutes=norm720(cand.reduce((a,b)=>Math.abs(a-cur)<=Math.abs(b-cur)?a:b));
+  }
+  function attachCoupledDrag(hit,kind){
+    let active=false;
+    hit.addEventListener('pointerdown',e=>{active=true;hit.setPointerCapture(e.pointerId);const a=watchPointerAngle(e);kind==='minute'?setFromMinute(a):setFromHour(a);render();});
+    hit.addEventListener('pointermove',e=>{if(!active)return;const a=watchPointerAngle(e);kind==='minute'?setFromMinute(a):setFromHour(a);render();});
+    hit.addEventListener('pointerup',()=>active=false);hit.addEventListener('pointercancel',()=>active=false);
+  }
+  attachCoupledDrag(hourHandHit,'hour');
+  attachCoupledDrag(minuteHandHit,'minute');
+
+  function dragDiscrete(hit,input,divisor){
+    let active=false;
+    const upd=e=>{const a=watchPointerAngle(e);input.value=String(Math.round(a/divisor)%Math.round(360/divisor));render();};
+    hit.addEventListener('pointerdown',e=>{active=true;hit.setPointerCapture(e.pointerId);upd(e);});
+    hit.addEventListener('pointermove',e=>{if(active)upd(e);});
+    hit.addEventListener('pointerup',()=>active=false);hit.addEventListener('pointercancel',()=>active=false);
+  }
+  dragDiscrete(bezelDrag,bezelValue,6);
+  dragDiscrete(pairDrag,pairValue,30);
+  dragDiscrete(outerDrag,outerValue,15);
+
+  document.getElementById('resetBtn').addEventListener('click',()=>{totalMinutes=0;bezelValue.value=0;pairValue.value=0;outerValue.value=0;render();});
+  document.getElementById('snapBtn').addEventListener('click',()=>{totalMinutes=Math.round(totalMinutes);render();});
+  historyBtn.addEventListener('click',()=>{
+    const hidden=document.body.classList.toggle('history-off');
+    historyBtn.textContent=hidden?'Show historical observation':'Hide historical observation';
+    historyBtn.setAttribute('aria-pressed',String(!hidden));
+  });
+  render();
+})();
+</script>
+</body>
+</html>
