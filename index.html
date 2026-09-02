@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Radio Z13 — experimental research tools and working notes related to the Zodiac Z13 cipher.">
+  <title>Radio Z13</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #171a21;
+      --text: #e8e8e8;
+      --muted: #a9b0bb;
+      --line: #2a2f3a;
+      --accent: #d7dde8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 64px 24px 80px;
+    }
+    header {
+      margin-bottom: 42px;
+    }
+    h1 {
+      font-size: clamp(2.4rem, 7vw, 4.8rem);
+      line-height: 1;
+      margin: 0 0 14px;
+      letter-spacing: -0.04em;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 1.08rem;
+      max-width: 720px;
+      margin: 0;
+    }
+    .notice {
+      border-left: 3px solid var(--accent);
+      padding: 14px 18px;
+      margin: 30px 0 42px;
+      background: var(--panel);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin: 24px 0 42px;
+    }
+    .card {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      padding: 20px;
+      border-radius: 10px;
+      transition: transform .15s ease, border-color .15s ease;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+    }
+    .card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 1.05rem;
+    }
+    .card span {
+      color: var(--muted);
+      font-size: .95rem;
+    }
+    h2 {
+      margin-top: 44px;
+      font-size: 1.35rem;
+    }
+    a {
+      color: var(--accent);
+    }
+    footer {
+      margin-top: 56px;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: .95rem;
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Radio Z13</h1>
+    <p class="subtitle">
+      Experimental research tools, simulators and working notes related to the Zodiac Z13 cipher.
+    </p>
+  </header>
+
+  <div class="notice">
+    This project does not claim to provide a demonstrated solution to Z13.
+    The material is presented as an experimental working framework for inspection,
+    reproduction, criticism and further testing.
+  </div>
+
+  <h2>Research summary</h2>
+  <div class="grid">
+    <a class="card" href="Radio_Z13_Research_Summary.pdf">
+      <strong>Research Summary — PDF</strong>
+      <span>Read the current research summary in the browser.</span>
+    </a>
+    <a class="card" href="Radio_Z13_Research_Summary.docx">
+      <strong>Research Summary — DOCX</strong>
+      <span>Download the editable document version.</span>
+    </a>
+  </div>
+
+  <h2>Simulators</h2>
+  <div class="grid">
+    <a class="card" href="Radio_Z13_Simulator_1_Circular_Receiver.html">
+      <strong>Simulator 1 — Circular Receiver</strong>
+      <span>Open the first experimental receiver directly in the browser.</span>
+    </a>
+    <a class="card" href="Radio_Z13_Simulator_2_GFRPOSTE_Sector.html">
+      <strong>Simulator 2 — GFRPOSTE Sector</strong>
+      <span>Open the sector-based experimental simulator.</span>
+    </a>
+    <a class="card" href="Radio_Z13_Simulator_3_Instrument_v0_9.html">
+      <strong>Simulator 3 — Instrument v0.9</strong>
+      <span>Open the current instrument prototype.</span>
+    </a>
+  </div>
+
+  <h2>Repository</h2>
+  <p>
+    Source files, documentation, license and release packages are available on
+    <a href="https://github.com/RadioZodiac13/Radio-Z13">GitHub</a>.
+    The packaged release can be found under
+    <a href="https://github.com/RadioZodiac13/Radio-Z13/releases">Releases</a>.
+  </p>
+
+  <h2>Contact</h2>
+  <p>
+    Radio Zodiac 13 — <a href="mailto:radiozodiac13@gmail.com">radiozodiac13@gmail.com</a>
+  </p>
+
+  <footer>
+    Radio Z13 · Independent experimental research project
+  </footer>
+</main>
+</body>
+</html>
